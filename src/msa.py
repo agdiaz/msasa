@@ -188,7 +188,7 @@ def msa_neighbor_add_remove(df, changes=1):
 
 if __name__ == "main":
 	input_parser = InputParser()
-	sequences_dictionary = input_parser.read_fasta_to_dict(['/content/P94485.fasta'])
+	sequences_dictionary = input_parser.read_fasta_to_dict([sys.argv[1])
 	df = input_parser.build_dataframe(sequences_dictionary)
 
 	# seed the pseudorandom number generator
@@ -206,7 +206,7 @@ if __name__ == "main":
 	print('Initial Score = %i; Final Score = %i' % (initial_energy, score))
 	
 	input_parser = InputParser()
-	input_parser.dataframe_to_msa_file(best, "best.fasta")
+	input_parser.dataframe_to_msa_file(best, sys.argv[2])
 
 	with open("best.fasta", "r") as f:
 		content = f.read()
