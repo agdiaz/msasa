@@ -110,8 +110,8 @@ def simulated_annealing_max(objective, neighbor, initial, n_iterations, temp):
 		# evaluate candidate point
 		candidate_eval = objective(candidate)
 
-		if i % 10 == 0:
-			print("{0},{1},{2},{3},{4}".format(i, best_eval, curr_eval, candidate_eval, changes))
+#		if i % 10 == 0:
+#			print("{0},{1},{2},{3},{4}".format(i, best_eval, curr_eval, candidate_eval, changes))
 
 		# check for new best solution
 		if candidate_eval > best_eval:
@@ -188,7 +188,7 @@ def msa_neighbor_add_remove(df, changes=1):
     return neighbor
 
 if __name__ == "__main__":
-	print("WELCOME")
+#	print("WELCOME")
 	input_parser = InputParser()
 	sequences_dictionary = input_parser.read_fasta_to_dict([sys.argv[1]])
 	df = input_parser.build_dataframe(sequences_dictionary)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 	temp = 10
 	# perform the simulated annealing search
 	best, score, bests, currents, candidates, temperatures = simulated_annealing_max(msa_objective_real, msa_neighbor_add_remove, initial_df, n_iterations, temp)
-	print('Initial Score = %i; Final Score = %i' % (initial_energy, score))
+	print('%s;%i;%i' % (sys.argv[2], initial_energy, score))
 
 	input_parser = InputParser()
 	input_parser.dataframe_to_msa_file(best, sys.argv[2])
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 	with open(sys.argv[2], "r") as f:
 		content = f.read()
 
-	print(content)
+#	print(content)
 
 	# fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
 	# ax.plot(bests, color="green")  # Plot some data on the axes.
