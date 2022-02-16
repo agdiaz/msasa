@@ -5,36 +5,38 @@ from numpy.random import seed
 from input_parser import InputParser
 from simulated_annealing import SimulatedAnnealing
 
-from objective_functions import msa_objective_real
+from objective_functions import SequencesComparerFactory
 from generators import msa_neighbor_add_remove
 
 if __name__ == "__main__":
 	input_file = sys.argv[1]
 	output_file = sys.argv[2]
+	sequences_comparer_name = sys.argv[3]
+	n_iterations = int(sys.argv[4])
+	score_function = SequencesComparerFactory.from_name(sequences_comparer_name)
+
 	try:
-		output_plot = sys.argv[3]
+		output_plot = sys.argv[5]
 		from matplotlib import pyplot as plt
 	except IndexError:
 		output_plot = None
 
 	sequences_dictionary = InputParser.read_fasta_to_dict([sys.argv[1]])
-	df = InputParser.build_dataframe(sequences_dictionary)
+	alignment_dataframe = InputParser.build_dataframe(sequences_dictionary)
 
 	# seed the pseudorandom number generator
 	seed(2)
 
 	# Init df
-	initial_df = df
-	initial_energy = msa_objective_real(initial_df)
+	initial_alignment_dataframe = alignment_dataframe
+	initial_energy = score_function.calculate_score(alignment_dataframe)
 
-	# define the total iterations
-	n_iterations = 50
 	# initial temperature
 	temp = 10
 
 	# perform the simulated annealing search
-	sa = SimulatedAnnealing(initial_df, n_iterations, temp)
-	best, score, bests, currents, candidates, temperatures = sa.maximize(msa_objective_real, msa_neighbor_add_remove)
+	sa = SimulatedAnnealing(initial_alignment_dataframe, n_iterations, temp)
+	best, score, bests, currents, candidates, temperatures = sa.maximize(score_function, msa_neighbor_add_remove)
 
 	print('%s;%i;%i' % (sys.argv[2], initial_energy, score))
 

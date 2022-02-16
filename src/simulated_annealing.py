@@ -7,7 +7,7 @@ class SimulatedAnnealing():
         self.n_iterations = n_iterations
         self.temp = temp
 
-    def maximize(self, objective, generate_neighbor):
+    def maximize(self, score_function, generate_neighbor):
         # for the records
         candidates = []
         currents = []
@@ -18,7 +18,7 @@ class SimulatedAnnealing():
         best = self.initial
 
         # evaluate the initial point
-        best_eval = objective(best)
+        best_eval = score_function.calculate_score(best)
 
         # current working solution
         curr, curr_eval = best, best_eval
@@ -31,7 +31,7 @@ class SimulatedAnnealing():
             candidate = generate_neighbor(best, changes=changes)
 
             # evaluate candidate point
-            candidate_eval = objective(candidate)
+            candidate_eval = score_function.calculate_score(candidate)
 
             # check for new best solution
             if candidate_eval > best_eval:
