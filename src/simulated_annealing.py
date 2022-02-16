@@ -1,4 +1,5 @@
-from math import exp, floor
+from math import floor
+from numpy import exp
 from numpy.random import rand
 
 class SimulatedAnnealing():

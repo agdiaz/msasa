@@ -7,6 +7,8 @@ from simulated_annealing import SimulatedAnnealing
 
 from objective_functions import SequencesComparerFactory
 from generators import msa_neighbor_add_remove
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 plt.ioff()
 
@@ -23,7 +25,6 @@ if __name__ == "__main__":
 		# from matplotlib import pyplot as plt
 	except IndexError:
 		output_plot = None
-		print("NO PLOT")
 
 	sequences_dictionary = InputParser.read_fasta_to_dict([sys.argv[1]])
 	alignment_dataframe = InputParser.build_dataframe(sequences_dictionary)
@@ -42,16 +43,14 @@ if __name__ == "__main__":
 	sa = SimulatedAnnealing(initial_alignment_dataframe, n_iterations, temp)
 	best, score, bests, currents, candidates, temperatures = sa.maximize(score_function, msa_neighbor_add_remove)
 
-	print('%s;%i;%i' % (sys.argv[2], initial_energy, score))
+	print('%s;%i;%i' % (output_file, initial_energy, score))
 
-	InputParser.dataframe_to_msa_file(best, sys.argv[2])
+	InputParser.dataframe_to_msa_file(best, output_file)
 
-	with open(sys.argv[2], "r") as f:
+	with open(output_file, "r") as f:
 		content = f.read()
 
 	if output_plot != None:
-		print(bests)
-		print(candidates)
 		fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
 		plt.title("Simulated Annealing - MSA prediction ({0})".format(sequences_comparer_name))
 		ax.plot(range(n_iterations), bests, color="green")  # Plot some data on the axes.
@@ -64,5 +63,4 @@ if __name__ == "__main__":
 		ax.set_ylabel('Score', color='g')
 		axTemp.set_ylabel('Temperature', color='b')
 
-		fig.savefig(sys.argv[3])
-		# plt.close()
+		fig.savefig(output_plot)
