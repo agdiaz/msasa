@@ -20,9 +20,11 @@ echo "file;initial_energy;final_energy" > $LOG_FILENAME
 
 for i in {1..5}
 do
+	OUTPUT_MSA_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa.fa
+	PLOT_FILENAME=$OUTPUT_FOLDER/$filename/$i.png
 	echo "MSASA Execution # $i started"
 	# mkdir -p $OUTPUT_FOLDER/$filename
-	python3 $MSASA $INPUT_FASTA $OUTPUT_FOLDER/$filename/$i.msasa.fa >> $LOG_FILENAME
+	python3 $MSASA $INPUT_FASTA $OUTPUT_MSA_FILENAME $PLOT_FILENAME >> $LOG_FILENAME
 done
 
 LOG_FILENAME_SORTED=$LOG_FILENAME.sorted
@@ -33,5 +35,5 @@ cat $LOG_FILENAME_SORTED
 
 BEST=$(cat $LOG_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
 
-cp $BEST $OUTPUT_FOLDER/$filename/best.msasa.fa
+ln -s $BEST $OUTPUT_FOLDER/$filename/best.msasa.fa
 echo "DONE"

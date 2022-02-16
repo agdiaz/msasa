@@ -14,6 +14,7 @@ import re
 # from matplotlib import pyplot as plt
 import pandas as pd
 import sys
+from matplotlib import pyplot as plt
 
 class InputParser():
     def read_fasta_to_bioseq(self, path_to_files):
@@ -215,7 +216,8 @@ if __name__ == "__main__":
 
 #	print(content)
 
-	# fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
-	# ax.plot(bests, color="green")  # Plot some data on the axes.
-	# ax.plot(candidates, color="orange")  # Plot some data on the axes.
-	# plt.show()
+	fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
+	ax.plot(bests, color="green")  # Plot some data on the axes.
+	ax.plot(candidates, color="orange")  # Plot some data on the axes.
+	fig.savefig(sys.argv[3])
+	plt.close()
