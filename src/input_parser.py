@@ -34,6 +34,26 @@ class InputParser():
         return sequences_dictionary
 
     @staticmethod
+    def sequences_to_dict(sequences):
+        sequences_dictionary = { 'sequences': {}, 'max_length': None, 'min_length': None }
+        max_length = None
+        min_length = None
+
+        for record in sequences:
+            sequence_length = record.seq.__len__()
+            sequences_dictionary['sequences'][record.id] = { 'sequence': record.seq.__str__(), 'count': sequence_length }
+
+            if max_length == None or sequence_length > max_length:
+                max_length = sequence_length
+            if min_length == None or sequence_length < min_length:
+                min_length = sequence_length
+
+        sequences_dictionary['max_length'] = max_length
+        sequences_dictionary['min_length'] = min_length
+
+        return sequences_dictionary
+
+    @staticmethod
     def build_dataframe(sequences_dictionary):
         max_length = sequences_dictionary['max_length']
         index = range(max_length)
