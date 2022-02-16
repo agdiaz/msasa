@@ -7,6 +7,9 @@ from simulated_annealing import SimulatedAnnealing
 
 from objective_functions import SequencesComparerFactory
 from generators import msa_neighbor_add_remove
+from matplotlib import pyplot as plt
+plt.ioff()
+
 
 if __name__ == "__main__":
 	input_file = sys.argv[1]
@@ -17,9 +20,10 @@ if __name__ == "__main__":
 
 	try:
 		output_plot = sys.argv[5]
-		from matplotlib import pyplot as plt
+		# from matplotlib import pyplot as plt
 	except IndexError:
 		output_plot = None
+		print("NO PLOT")
 
 	sequences_dictionary = InputParser.read_fasta_to_dict([sys.argv[1]])
 	alignment_dataframe = InputParser.build_dataframe(sequences_dictionary)
@@ -46,17 +50,19 @@ if __name__ == "__main__":
 		content = f.read()
 
 	if output_plot != None:
+		print(bests)
+		print(candidates)
 		fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
-
-		ax.plot(bests, color="green")  # Plot some data on the axes.
-		ax.plot(candidates, color="orange")  # Plot some data on the axes.
+		plt.title("Simulated Annealing - MSA prediction ({0})".format(sequences_comparer_name))
+		ax.plot(range(n_iterations), bests, color="green")  # Plot some data on the axes.
+		ax.plot(range(n_iterations), candidates, color="orange")  # Plot some data on the axes.
 
 		axTemp = ax.twinx()
-		axTemp.plot(temperatures, color='red')
+		axTemp.plot(range(n_iterations), temperatures, color='red')
 
-		ax.set_xlabel('Iteration')
+		ax.set_xlabel('Iterations')
 		ax.set_ylabel('Score', color='g')
 		axTemp.set_ylabel('Temperature', color='b')
 
 		fig.savefig(sys.argv[3])
-		plt.close()
+		# plt.close()
