@@ -1,17 +1,19 @@
 from Bio import SeqIO
-from Bio.SubsMat import MatrixInfo
-from Bio.SubsMat.MatrixInfo import blosum62 as blosum
+# from Bio.SubsMat import MatrixInfo
+# from Bio.SubsMat.MatrixInfo import blosum62 as blosum
 from Bio import pairwise2
-from numpy import asarray
+# from numpy import asarray
 from numpy import exp
-from numpy.random import randn
+# from numpy.random import randn
 from numpy.random import rand
 from numpy.random import seed
 from math import floor
 from random import choices, randint, choice
 from itertools import combinations
 import re
-from matplotlib import pyplot
+# from matplotlib import pyplot as plt
+import pandas as pd
+import sys
 
 class InputParser():
     def read_fasta_to_bioseq(self, path_to_files):
@@ -20,7 +22,7 @@ class InputParser():
         for file_path in path_to_files:
             for record in SeqIO.parse(file_path, "fasta"):
                 sequences.append(record.seq)
-        
+
         return sequences
 
     def read_fasta_to_dict(self, path_to_files):
@@ -37,10 +39,10 @@ class InputParser():
                     max_length = sequence_length
                 if min_length == None or sequence_length < min_length:
                     min_length = sequence_length
-        
+
         sequences_dictionary['max_length'] = max_length
         sequences_dictionary['min_length'] = min_length
-        
+
         return sequences_dictionary
 
     def build_dataframe(self, sequences_dictionary):
@@ -52,7 +54,7 @@ class InputParser():
             residues = value['sequence']
             if len(residues) < max_length:
                 residues = residues.ljust(max_length, '-')
-            
+
             columns[entry] = [c for c in residues]
 
         df = pd.DataFrame.from_dict(columns, orient='index', columns=index)
@@ -108,28 +110,28 @@ def simulated_annealing_max(objective, neighbor, initial, n_iterations, temp):
 		# evaluate candidate point
 		candidate_eval = objective(candidate)
 
-		#if i % 100 == 0:
-		#	print("Iteration {0} - best energy: {1} - curr energy: {2} - cand. energy: {3} - changes: {4}".format(i, best_eval, curr_eval, candidate_eval, changes))
-		
+		if i % 10 == 0:
+			print("{0},{1},{2},{3},{4}".format(i, best_eval, curr_eval, candidate_eval, changes))
+
 		# check for new best solution
 		if candidate_eval > best_eval:
 			# store new best point
 			best, best_eval = candidate, candidate_eval
-   
+
 		# difference between candidate and current point evaluation
 		diff = candidate_eval - curr_eval
-		
+
 		# calculate temperature for current epoch
 		t = temp / float(i + 1)
-		
+
 		# calculate metropolis acceptance criterion
 		metropolis = exp(diff / t)
-		
+
 		# check if we should keep the new point
 		if diff > 0 or rand() < metropolis:
 			# store the new current point
 			curr, curr_eval = candidate, candidate_eval
-		
+
 		bests.append(best_eval)
 		temperatures.append(t)
 		currents.append(curr_eval)
@@ -147,7 +149,6 @@ def msa_objective_real(df):
         # Identical characters are given 5 points, 4 point is deducted for each non-identical character
         # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
         blosum_score = pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
-        # blosum_score = score_pairwise(seq_a, seq_b, blosum, gap_score=-1, gap_error=-2, error_score=-10)
         total_energy += blosum_score
 
     return total_energy
@@ -156,10 +157,10 @@ def msa_neighbor_add_remove(df, changes=1):
     seq_count = len(df.index)
     if changes > seq_count:
         changes = seq_count
-        
+
     random_seq_indexes = choices(list(df.index), k=changes)
 
-    with open("temp.fasta", "w") as tmp_file:
+    with open("/tmp/msa_neighbor_add_remove.fasta", "w") as tmp_file:
         dft = df.transpose()
         for index, row in dft.items():
             values = dft[index]
@@ -181,14 +182,15 @@ def msa_neighbor_add_remove(df, changes=1):
 
             tmp_file.write(">{0}\n{1}\n".format(index, sequence))
 
-    sequences_dictionary = input_parser.read_fasta_to_dict(['temp.fasta'])
+    sequences_dictionary = input_parser.read_fasta_to_dict(["/tmp/msa_neighbor_add_remove.fasta"])
     neighbor = input_parser.build_dataframe(sequences_dictionary)
 
     return neighbor
 
-if __name__ == "main":
+if __name__ == "__main__":
+	print("WELCOME")
 	input_parser = InputParser()
-	sequences_dictionary = input_parser.read_fasta_to_dict([sys.argv[1])
+	sequences_dictionary = input_parser.read_fasta_to_dict([sys.argv[1]])
 	df = input_parser.build_dataframe(sequences_dictionary)
 
 	# seed the pseudorandom number generator
@@ -198,21 +200,22 @@ if __name__ == "main":
 	initial_energy = msa_objective_real(initial_df)
 
 	# define the total iterations
-	n_iterations = 100
+	n_iterations = 50
 	# initial temperature
 	temp = 10
 	# perform the simulated annealing search
 	best, score, bests, currents, candidates, temperatures = simulated_annealing_max(msa_objective_real, msa_neighbor_add_remove, initial_df, n_iterations, temp)
 	print('Initial Score = %i; Final Score = %i' % (initial_energy, score))
-	
+
 	input_parser = InputParser()
 	input_parser.dataframe_to_msa_file(best, sys.argv[2])
 
-	with open("best.fasta", "r") as f:
+	with open(sys.argv[2], "r") as f:
 		content = f.read()
 
 	print(content)
-	
-	fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
-	ax.plot(bests, color="green")  # Plot some data on the axes.
-	ax.plot(candidates, color="orange")  # Plot some data on the axes.
+
+	# fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
+	# ax.plot(bests, color="green")  # Plot some data on the axes.
+	# ax.plot(candidates, color="orange")  # Plot some data on the axes.
+	# plt.show()
