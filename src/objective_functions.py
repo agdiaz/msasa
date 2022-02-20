@@ -5,32 +5,17 @@ from input_parser import InputParser
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
-# def msa_objective_real(df, sequences_comparer_name = "global_ms"):
-
-#     sequences_comparer = SequencesComparerFactory.from_name(sequences_comparer_name)
-
-#     score_total = 0
-#     sequences = InputParser.dataframe_to_sequences(df)
-#     seq_combinations = combinations(sequences, 2)
-
-#     for combo in seq_combinations:
-#         seq_a, seq_b = combo
-
-#         combination_score = sequences_comparer.compare(seq_a, seq_b)
-#         score_total += combination_score
-
-#     return score_total
-
-
 class SequencesComparerFactory:
     @staticmethod
     def from_name(name):
         if name == "global_ms":
             return GlobalMs()
+        elif name == "global_ms_min":
+            return GlobalMsMin()
         elif name == "blosum":
             return Blosum()
         else:
-            raise "Wrong name"
+            raise NameError("Wrong name: {0}".format(name))
 
 class SequencesComparer:
     def calculate_score(self, alignment_dataframe):
@@ -56,14 +41,22 @@ class GlobalMs(SequencesComparer):
     def compare(self, seq_a, seq_b):
         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
+class GlobalMsMin(SequencesComparer):
+    # Identical characters are given 5 points, 4 point is deducted for each non-identical character
+    # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
+
+    def compare(self, seq_a, seq_b):
+        return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
+
+
 class Blosum(SequencesComparer):
     # https://stackoverflow.com/questions/5686211/is-there-a-function-that-can-calculate-a-score-for-aligned-sequences-given-the-a
 
     def __init__(self):
         self.matrix = blosum
-        self.first_gap_score = -2
-        self.gap_continuation_score = -1
-        self.error_score=-10
+        self.first_gap_score = -1
+        self.gap_continuation_score = -0.5
+        self.error_score=-2
 
     def compare(self, seq_a, seq_b):
         return self.__score_pairwise(seq_a, seq_b)

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# ./run_msasa.sh ~/data/SELECTED/small_short.fa ~/output/small_short.fa.out1
+# ./run_msasa.sh ~/data/SELECTED/small_short.fa ~/output
 
-EXECUTIONS_PER_TOOL=30
+EXECUTIONS_PER_TOOL=1
 INPUT_FASTA=$1
 OUTPUT_FOLDER=$2
 MSASA=/home/adrian/msasa/src/msa.py
@@ -12,19 +12,16 @@ extension="${filename##*.}"
 filename="${filename%.*}"
 
 mkdir -p $OUTPUT_FOLDER/$filename
-LOG_FILENAME=$OUTPUT_FOLDER/$filename/$filename.log
-# echo "Log file with global results: $LOG_FILENAME"
+LOG_FILENAME=$OUTPUT_FOLDER/$filename/$filename.global_ms.log
 
 echo "file;initial_energy;final_energy" > $LOG_FILENAME
-# date >> $LOG_FILENAME
 
-for i in {1..5}
+for ((i=1;i<=EXECUTIONS_PER_TOOL;i++));
 do
 	OUTPUT_MSA_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa-global-ms.fa
 	PLOT_FILENAME=$OUTPUT_FOLDER/$filename/$i.global-ms.png
 	echo "MSASA Execution # $i started"
-	# mkdir -p $OUTPUT_FOLDER/$filename
-	python3 $MSASA $INPUT_FASTA $OUTPUT_MSA_FILENAME global_ms 50 $PLOT_FILENAME >> $LOG_FILENAME
+	python3 $MSASA --input $INPUT_FASTA --output $OUTPUT_MSA_FILENAME --comparer global_ms_min --n-iterations 5000 --output-plot $PLOT_FILENAME --optimization min >> $LOG_FILENAME
 done
 
 LOG_FILENAME_SORTED=$LOG_FILENAME.sorted
@@ -35,5 +32,5 @@ cat $LOG_FILENAME_SORTED
 
 BEST=$(cat $LOG_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
 
-ln -s $BEST $OUTPUT_FOLDER/$filename/best.msasa.fa
+ln --symbolic --force $BEST $OUTPUT_FOLDER/$filename/best.msasa_global_ms.fa
 echo "DONE"

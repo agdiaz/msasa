@@ -1,9 +1,10 @@
 import sys
-
+import argparse
+import pathlib
 from numpy.random import seed
 
 from input_parser import InputParser
-from simulated_annealing import SimulatedAnnealing
+from simulated_annealing import SimulatedAnnealing, Results
 
 from objective_functions import SequencesComparerFactory
 from generators import msa_neighbor_add_remove
@@ -12,21 +13,28 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 plt.ioff()
 
-
 if __name__ == "__main__":
-	input_file = sys.argv[1]
-	output_file = sys.argv[2]
-	sequences_comparer_name = sys.argv[3]
-	n_iterations = int(sys.argv[4])
+	parser = argparse.ArgumentParser(description='Process some integers.')
+	parser.add_argument('--input', dest='input_file', required=True, type=str, help='path to the input file')
+	parser.add_argument('--output', dest='output_file', required=True, type=str, help='path to the output file')
+	parser.add_argument('--comparer', dest='sequences_comparer', required=True, type=str, help='method to compare two sequences')
+	parser.add_argument('--optimization', dest='optimization_type', required=False, default='min', type=str, choices=['min', 'max'], help='method to compare two sequences')
+	parser.add_argument('--n-iterations', dest='n_iterations', type=int, required=False, default=50, help='number of iterations')
+	parser.add_argument('--output-plot', dest='output_plot', required=False, help='path to the results plot file', type=str)
+	args = parser.parse_args()
+
+	input_file = args.input_file
+	output_file = args.output_file
+	sequences_comparer_name = args.sequences_comparer
+	n_iterations = args.n_iterations
 	score_function = SequencesComparerFactory.from_name(sequences_comparer_name)
 
 	try:
-		output_plot = sys.argv[5]
-		# from matplotlib import pyplot as plt
+		output_plot = args.output_plot
 	except IndexError:
 		output_plot = None
 
-	sequences_dictionary = InputParser.read_fasta_to_dict([sys.argv[1]])
+	sequences_dictionary = InputParser.read_fasta_to_dict([input_file])
 	alignment_dataframe = InputParser.build_dataframe(sequences_dictionary)
 
 	# seed the pseudorandom number generator
@@ -41,23 +49,26 @@ if __name__ == "__main__":
 
 	# perform the simulated annealing search
 	sa = SimulatedAnnealing(initial_alignment_dataframe, n_iterations, temp)
-	best, score, bests, currents, candidates, temperatures = sa.maximize(score_function, msa_neighbor_add_remove)
+
+	if args.optimization_type == 'max':
+		results = sa.maximize(score_function, msa_neighbor_add_remove)
+	else:
+		results = sa.minimize(score_function, msa_neighbor_add_remove)
+
+	best, score = results.best()
 
 	print('%s;%i;%i' % (output_file, initial_energy, score))
 
 	InputParser.dataframe_to_msa_file(best, output_file)
 
-	with open(output_file, "r") as f:
-		content = f.read()
-
 	if output_plot != None:
-		fig, ax = plt.subplots(figsize=(25, 6))  # Create a figure containing a single axes.
+		fig, ax = plt.subplots(figsize=(25, 10))
 		plt.title("Simulated Annealing - MSA prediction ({0})".format(sequences_comparer_name))
-		ax.plot(range(n_iterations), bests, color="green")  # Plot some data on the axes.
-		ax.plot(range(n_iterations), candidates, color="orange")  # Plot some data on the axes.
+		ax.plot(results.records("bests"), color="green")
+		ax.plot(results.records("candidates"), color="orange")
 
 		axTemp = ax.twinx()
-		axTemp.plot(range(n_iterations), temperatures, color='red')
+		axTemp.plot(results.records("temperatures"), color='red')
 
 		ax.set_xlabel('Iterations')
 		ax.set_ylabel('Score', color='g')
