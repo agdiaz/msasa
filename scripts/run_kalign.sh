@@ -17,7 +17,7 @@ LOG_FILENAME=$OUTPUT_FOLDER/$filename/$filename.kalign.log
 for ((i=1;i<=EXECUTIONS_PER_TOOL;i++));
 do
 	echo "KAlign Execution # $i started"
-	kalign -quiet -input $INPUT_FASTA -output $OUTPUT_FOLDER/$filename/$i.kalign.fa -format fasta > LOG_FILENAME
+	kalign -quiet -input $INPUT_FASTA -output $OUTPUT_FOLDER/$filename/$i.kalign.fa -format fasta > $LOG_FILENAME
 done
 
 echo "DONE"
