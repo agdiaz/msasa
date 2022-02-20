@@ -1,9 +1,11 @@
+from abc import abstractmethod
 from itertools import combinations
 from Bio import pairwise2
 from Bio.SubsMat.MatrixInfo import blosum62 as blosum
 from input_parser import InputParser
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
+
 
 class SequencesComparerFactory:
     @staticmethod
@@ -14,8 +16,11 @@ class SequencesComparerFactory:
             return GlobalMsMin()
         elif name == "blosum":
             return Blosum()
+        elif name == "matching":
+            return MatchingCount()
         else:
             raise NameError("Wrong name: {0}".format(name))
+
 
 class SequencesComparer:
     def calculate_score(self, alignment_dataframe):
@@ -31,8 +36,11 @@ class SequencesComparer:
 
         return score_total
 
+
+    @abstractmethod
     def compare(self, seq_a, seq_b):
         pass
+
 
 class GlobalMs(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
@@ -40,6 +48,7 @@ class GlobalMs(SequencesComparer):
 
     def compare(self, seq_a, seq_b):
         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
+
 
 class GlobalMsMin(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
@@ -54,9 +63,9 @@ class Blosum(SequencesComparer):
 
     def __init__(self):
         self.matrix = blosum
-        self.first_gap_score = -1
-        self.gap_continuation_score = -0.5
-        self.error_score=-2
+        self.first_gap_score = -0.5
+        self.gap_continuation_score = -0.25
+        self.error_score= -1
 
     def compare(self, seq_a, seq_b):
         return self.__score_pairwise(seq_a, seq_b)
@@ -91,3 +100,44 @@ class Blosum(SequencesComparer):
                 return self.matrix[(tuple(reversed(pair)))]
         except:
             return self.error_score
+
+class MatchingCount(SequencesComparer):
+    def __init__(self):
+        self.opening_gap_penalty = 2
+        self.continuation_gap_penalty = 3
+        self.residue_match = -1
+        self.error_penalty = 10
+        self.mismatch_penalty = 1
+        self.half_gap = self.opening_gap_penalty / 2.0
+
+
+    def compare(self, seq_a, seq_b) -> float:
+        score_total = 0
+        gap_column = False
+
+        for i in range(len(seq_a)):
+            pos_a = seq_a[i]
+            pos_b = seq_b[i]
+
+            if pos_a == pos_b and pos_a == '-':
+                if gap_column:
+                    score_local = self.continuation_gap_penalty
+                else:
+                    score_local = self.opening_gap_penalty
+
+                gap_column = True
+            elif pos_a == pos_b:
+                gap_column = False
+                score_local = self.residue_match
+            elif pos_a == '-' or pos_b == '-':
+                gap_column = False
+                score_local = self.half_gap
+            elif pos_a != pos_b:
+                score_local = self.mismatch_penalty
+            else:
+                gap_column = False
+                score_local = self.error_penalty
+
+            score_total += score_local
+
+        return score_total

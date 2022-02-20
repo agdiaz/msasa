@@ -18,10 +18,11 @@ echo "file;initial_energy;final_energy" > $LOG_FILENAME
 
 for ((i=1;i<=EXECUTIONS_PER_TOOL;i++));
 do
-	OUTPUT_MSA_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa-global-ms.fa
-	PLOT_FILENAME=$OUTPUT_FOLDER/$filename/$i.global-ms.png
+	OUTPUT_MSA_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa_global_ms.fa
+	PLOT_BEST_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa_global_ms_best.png
+	PLOT_TEMP_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa_global_ms_temp.png
 	echo "MSASA Execution # $i started"
-	python3 $MSASA --input $INPUT_FASTA --output $OUTPUT_MSA_FILENAME --comparer global_ms_min --n-iterations 5000 --output-plot $PLOT_FILENAME --optimization min >> $LOG_FILENAME
+	python3 $MSASA --input $INPUT_FASTA --output $OUTPUT_MSA_FILENAME --comparer global_ms_min --n-iterations 50 --output-best-plot $PLOT_BEST_FILENAME --output-temp-plot $PLOT_TEMP_FILENAME --optimization min >> $LOG_FILENAME
 done
 
 LOG_FILENAME_SORTED=$LOG_FILENAME.sorted
