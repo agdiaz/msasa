@@ -2,7 +2,7 @@
 
 # ./run_msasa.sh ~/data/SELECTED/small_short.fa ~/output
 
-EXECUTIONS_PER_TOOL=1
+EXECUTIONS_PER_TOOL=30
 INPUT_FASTA=$1
 OUTPUT_FOLDER=$2
 MSASA=/home/adrian/msasa/src/msa.py
@@ -22,7 +22,7 @@ do
 	PLOT_BEST_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa_matching_best.png
 	PLOT_TEMP_FILENAME=$OUTPUT_FOLDER/$filename/$i.msasa_matching_temp.png
 	echo "MSASA Execution # $i started"
-	python3 $MSASA --input $INPUT_FASTA --output $OUTPUT_MSA_FILENAME --comparer matching --n-iterations 10000 --output-best-plot $PLOT_BEST_FILENAME --output-temp-plot $PLOT_TEMP_FILENAME --optimization min --temperature 1 >> $LOG_FILENAME
+	python3 $MSASA --input $INPUT_FASTA --output $OUTPUT_MSA_FILENAME --comparer matching --n-iterations 7000 --output-best-plot $PLOT_BEST_FILENAME --output-temp-plot $PLOT_TEMP_FILENAME --optimization min --temperature 1 >> $LOG_FILENAME
 done
 
 LOG_FILENAME_SORTED=$LOG_FILENAME.sorted

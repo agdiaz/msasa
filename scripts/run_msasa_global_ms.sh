@@ -2,7 +2,7 @@
 
 # ./run_msasa.sh ~/data/SELECTED/small_short.fa ~/output
 
-EXECUTIONS_PER_TOOL=1
+EXECUTIONS_PER_TOOL=30
 INPUT_FASTA=$1
 OUTPUT_FOLDER=$2
 MSASA=/home/adrian/msasa/src/msa.py

@@ -15,7 +15,7 @@ mkdir -p $OUTPUT_FOLDER/$filename
 for ((i=1;i<=EXECUTIONS_PER_TOOL;i++));
 do
 	echo "MAFFT Execution # $i started"
-	mafft --auto --quiet $INPUT_FASTA > $OUTPUT_FOLDER/$filename/$i.mafft.fa
+	mafft --auto $INPUT_FASTA > $OUTPUT_FOLDER/$filename/$i.mafft.fa
 done
 
 echo "DONE"

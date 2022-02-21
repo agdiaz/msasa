@@ -27,4 +27,4 @@ echo "(6/7) Starting MSASA GLOBAL MS"
 echo "(7/7) Starting MSASA MATCHING"
 ./run_msasa_matching.sh $FASTA_FILE /home/adrian/output # &>/dev/null & disown;
 
-# done
+# echo done

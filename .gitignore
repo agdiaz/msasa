@@ -1,4 +1,10 @@
 output
+
+msa.bin
+msa.bin/
+msa.build/
+msa.dist/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
