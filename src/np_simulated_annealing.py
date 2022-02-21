@@ -1,5 +1,6 @@
 from math import floor
 from numpy.random import rand
+from numpy import ndarray
 import pandas as pd
 
 from input_parser import InputParser
@@ -8,13 +9,13 @@ from optimization_type import Maximization, Minimization
 from results import Results
 
 # https://machinelearningmastery.com/simulated-annealing-from-scratch-in-python/
-class SimulatedAnnealing():
+class NpSimulatedAnnealing():
 
 
 	def __init__(self, input_file, optimization) -> None:
 		self.sequences_dictionary = InputParser.read_fasta_to_dict([input_file])
 
-		self.initial: pd.DataFrame = InputParser.build_dataframe(self.sequences_dictionary)
+		self.initial: ndarray = InputParser.build_np_array(self.sequences_dictionary)
 
 		if optimization == "max":
 			self.optimization = Maximization()
@@ -31,7 +32,7 @@ class SimulatedAnnealing():
 		best = generate_neighbor(self.initial, changes=1)
 
 		# evaluate the initial point
-		best_eval = score_function.calculate_score(best)
+		best_eval = score_function.np_calculate_score(best)
 
 		# current working solution
 		curr = best
@@ -41,16 +42,15 @@ class SimulatedAnnealing():
 			changes: int = floor(n_iterations/(i + 1))
 
 			# take a step
-			# candidate: pd.DataFrame = generate_neighbor(curr, changes=changes)
-			candidate: pd.DataFrame = curr
-			for j in range(5):
+			candidate: pd.DataFrame = generate_neighbor(curr, changes=changes)
+			for j in range(10):
 				candidate: pd.DataFrame = generate_neighbor(candidate, changes=changes)
 
 			# evaluate candidate point
-			candidate_eval: float = score_function.calculate_score(candidate)
+			candidate_eval: float = score_function.np_calculate_score(candidate)
 
 			# difference between candidate and current point evaluation
-			diff = candidate_eval - curr_eval
+			diff = candidate_eval - best_eval
 			optimization_condition = self.optimization.is_better_than_best(diff)
 
 			# store new best point
@@ -59,20 +59,14 @@ class SimulatedAnnealing():
 				best_eval = candidate_eval
 
 			# calculate temperature for current epoch
-			current_temp = initial_temp / float(i + 1)
+			current_temp = float(initial_temp / float(i + 1))
+			metropolis_condition = self.optimization.metropolis(diff, current_temp)
 
 			# check if we should keep the new point
-			if optimization_condition:
+			if optimization_condition or rand() < metropolis_condition:
 				# store the new current point
 				curr = candidate
 				curr_eval = candidate_eval
-				metropolis_condition = None
-			else:
-				metropolis_condition = self.optimization.metropolis(diff, current_temp)
-				if rand() < metropolis_condition:
-					# store the new current point
-					curr = candidate
-					curr_eval = candidate_eval
 
 			results.register_iteration(i, candidate_eval, curr_eval, best_eval, metropolis_condition, current_temp, diff)
 

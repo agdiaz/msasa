@@ -1,5 +1,5 @@
 from argparse import Namespace
-from generators import msa_neighbor_add_remove
+from generators import msa_neighbor_add_remove, np_msa_neighbor_add_remove
 from input_parser import InputParser
 from objective_functions import SequencesComparer, SequencesComparerFactory
 import matplotlib
@@ -22,8 +22,14 @@ class Runner:
 		self.n_iterations: int = args.n_iterations
 		self.optimization: str = args.optimization
 		self.initial_temp: int = args.initial_temp
+		self.engine: str = args.engine
 		self.score_function: SequencesComparer = SequencesComparerFactory.from_name(args.sequences_comparer)
 		self.msa: SimulatedAnnealing = msa_type(self.input_file, self.optimization)
+
+		if self.engine == "pandas":
+			self.neighbor_generator = msa_neighbor_add_remove
+		else:
+			self.neighbor_generator = np_msa_neighbor_add_remove
 
 
 	def start(self) -> None:
@@ -35,6 +41,7 @@ class Runner:
 		if self.output_best_plot:
 			self._plot_best_results(results)
 			self._plot_best_temp_results(results)
+			self._plot_diff_results(results)
 
 
 		if self.output_temp_plot:
@@ -42,7 +49,7 @@ class Runner:
 
 
 	def _execute_msa(self) -> Results:
-		results: Results = self.msa.execute(self.n_iterations, self.initial_temp, self.score_function, msa_neighbor_add_remove)
+		results: Results = self.msa.execute(self.n_iterations, self.initial_temp, self.score_function, self.neighbor_generator)
 
 		return results
 
@@ -55,41 +62,64 @@ class Runner:
 
 	def _save_results_to_file(self, results: Results) -> None:
 		best, __score = results.best()
-		InputParser.dataframe_to_msa_file(best, self.output_file)
-
+		if self.engine == "pandas":
+			InputParser.dataframe_to_msa_file(best, self.output_file)
+		else:
+			InputParser.np_array_to_msa_file(best, self.msa.sequences_dictionary, self.output_file)
 
 	def _plot_best_results(self, results: Results) -> None:
 		fig, ax = plt.subplots(figsize=(25, 10))
 
 		plt.title("Simulated Annealing - MSA prediction ({0}) - Best results over the time".format(self.sequences_comparer_name))
-		ax.plot(results.records("bests"), color="green")
-		ax.plot(results.records("candidates"), color="orange")
+		ax.plot(results.records("bests"), color="green", label="Best")
+		ax.plot(results.records("candidates"), color="orange", label="Candidate")
 
 		ax.set_xlabel('Iterations')
 		ax.set_ylabel('Score', color='green')
 
+		ax.legend()
 		fig.savefig(self.output_best_plot)
+
+	def _plot_diff_results(self, results: Results) -> None:
+		fig, ax = plt.subplots(figsize=(25, 10))
+
+		plt.title("Simulated Annealing - MSA prediction ({0}) - Diff over the time".format(self.sequences_comparer_name))
+
+		ax.bar(x=results.records("iterations"), height=results.records("diff"), color="orange")
+		ax.plot(results.records("iterations"), results.records("diff"), color="red", label="Diff")
+
+		axBests = ax.twinx()
+		axBests.plot(results.records("bests"), color='green', label="Best")
+
+		ax.set_xlabel('Iterations')
+		ax.set_ylabel('Diff (new - curr)', color='red')
+		axBests.set_ylabel('Best score', color='green')
+
+		ax.legend()
+		axBests.legend()
+
+		fig.savefig(self.output_best_plot.replace(".png", ".diff.png"))
 
 	def _plot_best_temp_results(self, results: Results) -> None:
 		fig, ax = plt.subplots(figsize=(25, 10))
 
 		plt.title("Simulated Annealing - MSA prediction ({0}) - Best results over the temperature".format(self.sequences_comparer_name))
-		ax.plot(results.records("temperatures"), results.records("bests"), color="green")
+		ax.plot(results.records("temperatures"), results.records("bests"), color="green", label="Best")
 
 		ax.set_xlabel('Temperature')
 		ax.invert_xaxis()
 		ax.set_ylabel('Score', color='green')
-
+		ax.legend()
 		fig.savefig(self.output_best_plot.replace(".png", ".temp.png"))
 
 
 	def _plot_temp_results(self, results: Results) -> None:
 		fig, ax = plt.subplots(figsize=(25, 10))
 		plt.title("Simulated Annealing - MSA prediction ({0}) - Metropolis condition and temperature over the time".format(self.sequences_comparer_name))
-		ax.plot(results.records("temperatures"), results.records("metropolis"), color="green")
+		ax.plot(results.records("temperatures"), results.records("metropolis"), color="green", label="Metropolis")
 
 		axBests = ax.twinx()
-		axBests.plot(results.records("temperatures"), results.records("bests"), color='red')
+		axBests.plot(results.records("temperatures"), results.records("bests"), color='red', label="Best")
 
 		ax.set_xlabel('Temperature')
 		ax.invert_xaxis()

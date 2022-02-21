@@ -13,7 +13,7 @@ class OptimizationType:
 
 class Maximization(OptimizationType):
 	def is_better_than_best(self, diff) -> bool:
-		return diff > 0
+		return diff >= 0
 
 
 	def metropolis(self, diff, current_temp) -> float:
@@ -45,7 +45,7 @@ class Minimization(OptimizationType):
 			False
 	"""
 	def is_better_than_best(self, diff) -> bool:
-		return diff < 0
+		return diff <= 0
 
 
 	def metropolis(self, diff, current_temp) -> float:

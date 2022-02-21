@@ -1,5 +1,6 @@
 from Bio import SeqIO
 import pandas as pd
+import numpy as np
 
 class InputParser():
     @staticmethod
@@ -54,6 +55,23 @@ class InputParser():
         return sequences_dictionary
 
     @staticmethod
+    def build_np_array(sequences_dictionary):
+        max_length = sequences_dictionary['max_length']
+        np_array = np.chararray([len(sequences_dictionary['sequences'].items()), max_length])
+
+        it = 0
+        for (entry, value) in sequences_dictionary['sequences'].items():
+            residues = value['sequence']
+            if len(residues) < max_length:
+                residues = residues.ljust(max_length, '-')
+
+            np_array[it] = [c for c in residues]
+            it += 1
+
+        return np_array
+
+
+    @staticmethod
     def build_dataframe(sequences_dictionary):
         max_length = sequences_dictionary['max_length']
         index = range(max_length)
@@ -85,6 +103,12 @@ class InputParser():
         return sequences
 
     @staticmethod
+    def np_array_to_sequences(np_array):
+        seqs, max_length = np_array.shape
+
+        return np_array.view("S%i" % max_length)
+
+    @staticmethod
     def dataframe_to_msa_file(df, file_name):
         last_col_index = len(df.columns) - 1
         while (df[last_col_index] == "-").all():
@@ -97,3 +121,12 @@ class InputParser():
                 sequence = ''.join([x for x in values])
 
                 output_file.write(">{0}\n{1}\n".format(index, sequence))
+
+    def np_array_to_msa_file(np_array, sequences_dict, file_name):
+        to_str = lambda vector: "".join(vector.decode("utf-8"))
+        sequences = [to_str(s) for s in np_array]
+        sequence_names = [*sequences_dict['sequences'].keys()]
+
+        with open(file_name, "w") as output_file:
+            for seq_ind, sequence in enumerate(sequences):
+                output_file.write(">{0}\n{1}\n".format(sequence_names[seq_ind], sequence))

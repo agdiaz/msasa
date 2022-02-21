@@ -2,6 +2,7 @@ import argparse
 
 from runner import Runner
 from simulated_annealing import SimulatedAnnealing
+from np_simulated_annealing import NpSimulatedAnnealing
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Process some integers.')
@@ -13,6 +14,12 @@ if __name__ == "__main__":
 	parser.add_argument('--output-best-plot', dest='output_best_plot', required=False, default=None, help='path to the best results plot file', type=str)
 	parser.add_argument('--output-temp-plot', dest='output_temp_plot', required=False, default=None, help='path to the temperatures plot file', type=str)
 	parser.add_argument('--temperature', dest='initial_temp', required=False, default=10, type=int, help='initial temperature')
+	parser.add_argument('--engine', dest='engine', required=False, default='pandas', type=str, choices=['pandas', 'numpy'], help='engine library to handle data structures')
 	args = parser.parse_args()
 
-	Runner(args, SimulatedAnnealing).start()
+	if args.engine == 'pandas':
+		msa = SimulatedAnnealing
+	else:
+		msa = NpSimulatedAnnealing
+
+	Runner(args, msa).start()

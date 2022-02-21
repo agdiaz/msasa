@@ -36,11 +36,26 @@ class SequencesComparer:
 
         return score_total
 
+    def np_calculate_score(self, alignment_nparray):
+        score_total = 0
+        seq_combinations = combinations(alignment_nparray, 2)
+
+        for combo in seq_combinations:
+            raw_seq_a, raw_seq_b = combo
+
+            combination_score = self.np_compare(raw_seq_a, raw_seq_b)
+            score_total += combination_score
+
+        return score_total
+
 
     @abstractmethod
-    def compare(self, seq_a, seq_b):
+    def compare(self, seq_a, seq_b) -> float:
         pass
 
+    @abstractmethod
+    def np_compare(self, seq_a, seq_b) -> float:
+        pass
 
 class GlobalMs(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
@@ -50,6 +65,9 @@ class GlobalMs(SequencesComparer):
         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
+    def np_compare(self, seq_a, seq_b) -> float:
+        pass
+
 class GlobalMsMin(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
     # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
@@ -57,6 +75,9 @@ class GlobalMsMin(SequencesComparer):
     def compare(self, seq_a, seq_b):
         return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
+
+    def np_compare(self, seq_a, seq_b) -> float:
+        pass
 
 class Blosum(SequencesComparer):
     # https://stackoverflow.com/questions/5686211/is-there-a-function-that-can-calculate-a-score-for-aligned-sequences-given-the-a
@@ -101,6 +122,9 @@ class Blosum(SequencesComparer):
         except:
             return self.error_score
 
+    def np_compare(self, seq_a, seq_b) -> float:
+        pass
+
 class MatchingCount(SequencesComparer):
     def __init__(self):
         self.opening_gap_penalty = 2
@@ -130,6 +154,38 @@ class MatchingCount(SequencesComparer):
                 gap_column = False
                 score_local = self.residue_match
             elif pos_a == '-' or pos_b == '-':
+                gap_column = False
+                score_local = self.half_gap
+            elif pos_a != pos_b:
+                score_local = self.mismatch_penalty
+            else:
+                gap_column = False
+                score_local = self.error_penalty
+
+            score_total += score_local
+
+        return score_total
+
+
+    def np_compare(self, seq_a, seq_b) -> float:
+        score_total = 0
+        gap_column = False
+
+        for i in range(len(seq_a)):
+            pos_a = seq_a[i]
+            pos_b = seq_b[i]
+
+            if pos_a == pos_b and pos_a == b'-':
+                if gap_column:
+                    score_local = self.continuation_gap_penalty
+                else:
+                    score_local = self.opening_gap_penalty
+
+                gap_column = True
+            elif pos_a == pos_b:
+                gap_column = False
+                score_local = self.residue_match
+            elif pos_a == '-' or pos_b == b'-':
                 gap_column = False
                 score_local = self.half_gap
             elif pos_a != pos_b:
