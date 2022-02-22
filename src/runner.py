@@ -23,7 +23,7 @@ class Runner:
 		self.optimization: str = args.optimization
 		self.initial_temp: int = args.initial_temp
 		self.engine: str = args.engine
-		self.is_debugging: str = args.is_debugging
+		self.is_debugging: str = args.is_debugging or False
 		self.score_function: SequencesComparer = SequencesComparerFactory.from_name(args.sequences_comparer)
 		self.msa: SimulatedAnnealing = msa_type(self.input_file, self.optimization)
 

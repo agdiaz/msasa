@@ -3,6 +3,7 @@ from itertools import combinations
 from Bio import pairwise2
 from Bio.SubsMat.MatrixInfo import blosum62 as blosum
 from input_parser import InputParser
+import multiprocessing as mp
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
@@ -39,16 +40,17 @@ class SequencesComparer:
         return score_total
 
     def np_calculate_score(self, alignment_nparray):
-        score_total = 0
+        pool = mp.Pool(mp.cpu_count())
+
         seq_combinations = combinations(alignment_nparray, 2)
 
-        for combo in seq_combinations:
-            raw_seq_a, raw_seq_b = combo
+        result_objects = [pool.apply_async(self.np_compare, args=(i, combo)) for i, combo in enumerate(seq_combinations)]
+        results = [r.get() for r in result_objects]
 
-            combination_score = self.np_compare(raw_seq_a, raw_seq_b)
-            score_total += combination_score
+        pool.close()
+        pool.join()
 
-        return score_total
+        return sum(results)
 
 
     @abstractmethod
@@ -56,7 +58,7 @@ class SequencesComparer:
         pass
 
     @abstractmethod
-    def np_compare(self, seq_a, seq_b) -> float:
+    def np_compare(self, i, combo) -> float:
         pass
 
 class GlobalMs(SequencesComparer):
@@ -67,7 +69,7 @@ class GlobalMs(SequencesComparer):
         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-    def np_compare(self, seq_a, seq_b) -> float:
+    def np_compare(self, i, combo) -> float:
         pass
 
 class GlobalMsMin(SequencesComparer):
@@ -78,7 +80,7 @@ class GlobalMsMin(SequencesComparer):
         return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-    def np_compare(self, seq_a, seq_b) -> float:
+    def np_compare(self, i, combo) -> float:
         pass
 
 class Blosum(SequencesComparer):
@@ -124,7 +126,7 @@ class Blosum(SequencesComparer):
         except:
             return self.error_score
 
-    def np_compare(self, seq_a, seq_b) -> float:
+    def np_compare(self, i, combo) -> float:
         pass
 
 class MatchingCount(SequencesComparer):
@@ -169,7 +171,9 @@ class MatchingCount(SequencesComparer):
         return score_total
 
 
-    def np_compare(self, seq_a, seq_b) -> float:
+    def np_compare(self, i, combo) -> float:
+        seq_a, seq_b = combo
+
         score_total = 0
         gap_column = False
 

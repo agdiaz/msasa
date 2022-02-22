@@ -1,7 +1,5 @@
-from math import floor
 from numpy.random import rand
 from numpy import ndarray
-import pandas as pd
 
 from input_parser import InputParser
 
@@ -24,6 +22,7 @@ class NpSimulatedAnnealing():
 		else:
 			raise BaseException("Invalid optimization name")
 
+
 	def execute(self, n_iterations: int, initial_temp: int, score_function, generate_neighbor, is_debugging=False,) -> Results:
 		results: Results = Results()
 		iterations_range: range = range(n_iterations)
@@ -34,8 +33,6 @@ class NpSimulatedAnnealing():
 			)
 
 		# generate an initial point
-		# best = self.initial.copy()
-		# for j in range(1):
 		best = generate_neighbor(self.initial, changes=1)
 
 		# evaluate the initial point
@@ -47,9 +44,7 @@ class NpSimulatedAnnealing():
 
 		for i in iterations_range:
 			# take a step
-			candidate = curr.copy()
-			for j in range(2):
-				candidate = generate_neighbor(candidate)
+			candidate = generate_neighbor(curr)
 
 			# evaluate candidate point
 			candidate_eval: float = score_function.np_calculate_score(candidate)
@@ -95,6 +90,7 @@ class NpSimulatedAnnealing():
 						diff=diff,
 					)
 				)
+
 			results.register_iteration(i, candidate_eval, curr_eval, best_eval, metropolis_condition, current_temp, diff)
 
 		results.set_best(best, best_eval)
