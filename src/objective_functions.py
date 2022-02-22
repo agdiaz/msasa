@@ -6,6 +6,8 @@ from input_parser import InputParser
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
+GAP = '-'
+B_GAP = b'-'
 
 class SequencesComparerFactory:
     @staticmethod
@@ -99,13 +101,13 @@ class Blosum(SequencesComparer):
             pair = (seq1[i], seq2[i])
 
             if not gap:
-                if '-' in pair:
+                if GAP in pair:
                     gap = True
                     score += self.first_gap_score
                 else:
                     score += self.__score_match(pair)
             else:
-                if '-' not in pair:
+                if GAP not in pair:
                     gap = False
 
                     score += self.__score_match(pair)
@@ -143,7 +145,7 @@ class MatchingCount(SequencesComparer):
             pos_a = seq_a[i]
             pos_b = seq_b[i]
 
-            if pos_a == pos_b and pos_a == '-':
+            if pos_a == pos_b and pos_a == GAP:
                 if gap_column:
                     score_local = self.continuation_gap_penalty
                 else:
@@ -153,7 +155,7 @@ class MatchingCount(SequencesComparer):
             elif pos_a == pos_b:
                 gap_column = False
                 score_local = self.residue_match
-            elif pos_a == '-' or pos_b == '-':
+            elif pos_a == GAP or pos_b == GAP:
                 gap_column = False
                 score_local = self.half_gap
             elif pos_a != pos_b:
@@ -175,7 +177,7 @@ class MatchingCount(SequencesComparer):
             pos_a = seq_a[i]
             pos_b = seq_b[i]
 
-            if pos_a == pos_b and pos_a == b'-':
+            if pos_a == pos_b and pos_a == B_GAP:
                 if gap_column:
                     score_local = self.continuation_gap_penalty
                 else:
@@ -185,7 +187,7 @@ class MatchingCount(SequencesComparer):
             elif pos_a == pos_b:
                 gap_column = False
                 score_local = self.residue_match
-            elif pos_a == '-' or pos_b == b'-':
+            elif pos_a == B_GAP or pos_b == B_GAP:
                 gap_column = False
                 score_local = self.half_gap
             elif pos_a != pos_b:

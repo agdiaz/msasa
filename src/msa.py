@@ -13,8 +13,9 @@ if __name__ == "__main__":
 	parser.add_argument('--n-iterations', dest='n_iterations', type=int, required=False, default=50, help='number of iterations')
 	parser.add_argument('--output-best-plot', dest='output_best_plot', required=False, default=None, help='path to the best results plot file', type=str)
 	parser.add_argument('--output-temp-plot', dest='output_temp_plot', required=False, default=None, help='path to the temperatures plot file', type=str)
-	parser.add_argument('--temperature', dest='initial_temp', required=False, default=10, type=int, help='initial temperature')
+	parser.add_argument('--temperature', dest='initial_temp', required=False, default=10, type=float, help='initial temperature')
 	parser.add_argument('--engine', dest='engine', required=False, default='pandas', type=str, choices=['pandas', 'numpy'], help='engine library to handle data structures')
+	parser.add_argument('--debug', dest='is_debugging', required=False, default=False, type=bool, help='Print out debugging data during the execution of the algorithm')
 	args = parser.parse_args()
 
 	if args.engine == 'pandas':

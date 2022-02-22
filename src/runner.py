@@ -23,14 +23,16 @@ class Runner:
 		self.optimization: str = args.optimization
 		self.initial_temp: int = args.initial_temp
 		self.engine: str = args.engine
+		self.is_debugging: str = args.is_debugging
 		self.score_function: SequencesComparer = SequencesComparerFactory.from_name(args.sequences_comparer)
 		self.msa: SimulatedAnnealing = msa_type(self.input_file, self.optimization)
 
 		if self.engine == "pandas":
 			self.neighbor_generator = msa_neighbor_add_remove
-		else:
+		elif self.engine == "numpy":
 			self.neighbor_generator = np_msa_neighbor_add_remove
-
+		else:
+			NameError("Invalid engine name")
 
 	def start(self) -> None:
 		results = self._execute_msa()
@@ -49,7 +51,7 @@ class Runner:
 
 
 	def _execute_msa(self) -> Results:
-		results: Results = self.msa.execute(self.n_iterations, self.initial_temp, self.score_function, self.neighbor_generator)
+		results: Results = self.msa.execute(self.n_iterations, self.initial_temp, self.score_function, self.neighbor_generator, self.is_debugging)
 
 		return results
 
@@ -59,6 +61,8 @@ class Runner:
 		best, best_score = results.best()
 		print('%s;%f;%f' % (self.output_file, initial_score, best_score))
 
+		if self.is_debugging:
+			print(best)
 
 	def _save_results_to_file(self, results: Results) -> None:
 		best, __score = results.best()
@@ -85,8 +89,8 @@ class Runner:
 
 		plt.title("Simulated Annealing - MSA prediction ({0}) - Diff over the time".format(self.sequences_comparer_name))
 
-		ax.bar(x=results.records("iterations"), height=results.records("diff"), color="orange")
 		ax.plot(results.records("iterations"), results.records("diff"), color="red", label="Diff")
+		ax.axhline(y=0, color='black', linestyle='-')
 
 		axBests = ax.twinx()
 		axBests.plot(results.records("bests"), color='green', label="Best")

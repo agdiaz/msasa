@@ -58,33 +58,51 @@ def __create_neighbor_removing_gap(sequence):
 def __create_neighbor_adding_gap(sequence, changes):
     pos = randint(0, len(sequence) - 1)
 
-    return sequence[:pos] + ("-" * changes) + sequence[pos:]
+    return sequence[:pos] + "-" + sequence[pos:]
 
+def __is_last_column_gap(sequences, max_sequence_length):
+    return all(s[max_sequence_length - 1] == '-' for s in sequences)
+
+def __trim_sequences(sequences):
+    for seq_index in range(len(sequences)):
+        sequences[seq_index] = sequences[seq_index][:-1]
+
+    return sequences
 
 def np_msa_neighbor_add_remove(np_array, changes=1):
     to_str = lambda vector: "".join(vector.decode("utf-8"))
     sequences = [to_str(s) for s in np_array]
+    sequences_count = len(sequences)
+    range_of_sequences_count = range(sequences_count)
 
-    random_seq_index = choice(range(len(sequences)))
-    random_seq = sequences[random_seq_index]
+    while True:
+        random_seq_index = choice(range_of_sequences_count)
+        random_seq = sequences[random_seq_index]
 
-    remove_gap = randint(0, 1) == 0 and random_seq.count('-') > 0
+        remove_gap = randint(0, 1) == 0
+        if not remove_gap:
+            break
+        else:
+            if random_seq.count('-') > 0:
+                break
 
     if remove_gap:
         new_random_seq = __create_neighbor_removing_gap(random_seq)
     else:
         new_random_seq = __create_neighbor_adding_gap(random_seq, changes)
 
-    max_sequence_length = max(len(new_random_seq), len(max(sequences, key = len)))
+    sequences[random_seq_index] = new_random_seq
 
-    neighbor = np.chararray([len(sequences), max_sequence_length])
+    max_sequence_length = len(max(sequences, key = len))
+    for seq_index in range_of_sequences_count:
+        sequences[seq_index] = sequences[seq_index].ljust(max_sequence_length, '-')
+
+    while(__is_last_column_gap(sequences, max_sequence_length)):
+        sequences = __trim_sequences(sequences)
+        max_sequence_length -= 1
+
+    neighbor = np.chararray([sequences_count, max_sequence_length])
     for seq_index, sequence in enumerate(sequences):
-        if seq_index == random_seq_index:
-            neighbor[seq_index] = [c for c in new_random_seq.ljust(max_sequence_length, '-')]
-        else:
-            neighbor[seq_index] = [c for c in sequence.ljust(max_sequence_length, '-')]
-
-    # print("ORI", np_array.shape, np_array)
-    # print("NEW", neighbor.shape, neighbor)
+        neighbor[seq_index] = [c for c in sequence]
 
     return neighbor
