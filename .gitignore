@@ -5,6 +5,9 @@ msa.bin/
 msa.build/
 msa.dist/
 
+test/*.msasa*.fa
+test/*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

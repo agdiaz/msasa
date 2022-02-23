@@ -3,3 +3,4 @@ biopython
 pandas
 matplotlib
 nuitka
+llvm-openmp
