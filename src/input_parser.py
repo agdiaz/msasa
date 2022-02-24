@@ -56,19 +56,15 @@ class InputParser():
 
     @staticmethod
     def build_np_array(sequences_dictionary):
+        sequences = [seq_dict['sequence'] for seq_dict in sequences_dictionary['sequences'].values()]
         max_length = sequences_dictionary['max_length']
-        np_array = np.chararray([len(sequences_dictionary['sequences'].items()), max_length])
 
-        it = 0
-        for (entry, value) in sequences_dictionary['sequences'].items():
-            residues = value['sequence']
-            if len(residues) < max_length:
-                residues = residues.ljust(max_length, '-')
+        if (np.random.rand() > 0.5):
+            adjusted_sequences = np.char.ljust(sequences, max_length, fillchar="-")
+        else:
+            adjusted_sequences = np.char.rjust(sequences, max_length, fillchar="-")
 
-            np_array[it] = [c for c in residues]
-            it += 1
-
-        return np_array
+        return np.array(adjusted_sequences, dtype=np.string_)
 
 
     @staticmethod

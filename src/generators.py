@@ -1,9 +1,10 @@
 import numpy as np
 from numpy.random import rand
-from random import choice, choices, randint
+from random import choice, choices, randint, getrandbits
 from input_parser import InputParser
 import re
 
+B_GAP = 45
 
 def msa_neighbor_add_remove(df, changes=1):
     seq_count = len(df.index)
@@ -48,61 +49,86 @@ def msa_neighbor_add_remove(df, changes=1):
 
     return neighbor
 
-def __create_neighbor_removing_gap(sequence):
-    gaps = [pos for pos, char in enumerate(sequence) if char == '-']
-    pos = choice(gaps)
-
-    return sequence[0:pos:] + sequence[pos + 1::]
-
-
-def __create_neighbor_adding_gap(sequence, changes):
-    pos = randint(0, len(sequence) - 1)
-
-    return sequence[:pos] + "-" + sequence[pos:]
-
 def __is_last_column_gap(sequences, max_sequence_length):
-    return all(s[max_sequence_length - 1] == '-' for s in sequences)
+    return all(s[max_sequence_length - 1] == B_GAP for s in sequences)
 
-def __trim_sequences(sequences):
-    for seq_index in range(len(sequences)):
-        sequences[seq_index] = sequences[seq_index][:-1]
+def __is_first_column_gap(sequences, max_sequence_length):
+    return all(s[0] == B_GAP for s in sequences)
 
-    return sequences
+def __ltrim_sequences(sequences):
+    for index, elem in enumerate(sequences):
+        sequences[index] = elem[:-1]
+
+    # return sequences
+
+def __rtrim_sequences(sequences):
+    for index, elem in enumerate(sequences):
+        sequences[index] = elem[1:]
+
+    # return sequences
+
+def __add_gap(array, index_to_alter = 0, pos = 0):
+    sequence_to_alter = array[index_to_alter]
+
+    new = sequence_to_alter[:pos] + b'-' + sequence_to_alter[pos:]
+    new_max_length = len(new)
+
+    if pos >= int(new_max_length / 2):
+        adjusted_sequences = np.char.ljust(array, new_max_length, fillchar="-")
+    else:
+        adjusted_sequences = np.char.rjust(array, new_max_length, fillchar="-")
+
+    adjusted_sequences[index_to_alter] = new
+
+    return adjusted_sequences
+
+def __remove_gap(array, index_to_alter = 0, pos = 0):
+    sequence_to_alter = array[index_to_alter]
+
+    new = sequence_to_alter[0 : pos : ] + sequence_to_alter[pos + 1 : :]
+    new_max_length = max(len(new), len(max(array, key=len)))
+
+    if pos < int(new_max_length / 2):
+        adjusted_sequences = np.char.ljust(array, new_max_length, fillchar="-")
+        new = np.char.ljust(new, new_max_length, fillchar="-")
+    else:
+        adjusted_sequences = np.char.rjust(array, new_max_length, fillchar="-")
+        new = np.char.rjust(new, new_max_length, fillchar="-")
+
+    adjusted_sequences[index_to_alter] = new
+
+    return adjusted_sequences
 
 def np_msa_neighbor_add_remove(np_array, changes=1):
-    to_str = lambda vector: "".join(vector.decode("utf-8"))
-    sequences = [to_str(s) for s in np_array]
-    sequences_count = len(sequences)
+    sequences_count = len(np_array)
     range_of_sequences_count = range(sequences_count)
 
     while True:
         random_seq_index = choice(range_of_sequences_count)
-        random_seq = sequences[random_seq_index]
+        random_seq = np_array[random_seq_index]
 
-        remove_gap = randint(0, 1) == 0
-        if not remove_gap:
-            break
-        else:
-            if random_seq.count('-') > 0:
+        remove_gap = bool(getrandbits(1))
+        if remove_gap:
+            gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
+            if len(gaps) > 0:
                 break
+        else:
+            break
 
     if remove_gap:
-        new_random_seq = __create_neighbor_removing_gap(random_seq)
+        pos = choice([pos for pos, char in enumerate(random_seq) if char == B_GAP])
+        neighbor = __remove_gap(np_array, random_seq_index, pos)
     else:
-        new_random_seq = __create_neighbor_adding_gap(random_seq, changes)
+        pos = randint(0, len(random_seq) - 1)
+        neighbor = __add_gap(np_array, random_seq_index, pos)
 
-    sequences[random_seq_index] = new_random_seq
-
-    max_sequence_length = len(max(sequences, key = len))
-    for seq_index in range_of_sequences_count:
-        sequences[seq_index] = sequences[seq_index].ljust(max_sequence_length, '-')
-
-    while(__is_last_column_gap(sequences, max_sequence_length)):
-        sequences = __trim_sequences(sequences)
+    max_sequence_length = len(max(neighbor, key=len))
+    while __is_last_column_gap(neighbor, max_sequence_length):
+        __ltrim_sequences(neighbor)
         max_sequence_length -= 1
 
-    neighbor = np.chararray([sequences_count, max_sequence_length])
-    for seq_index, sequence in enumerate(sequences):
-        neighbor[seq_index] = [c for c in sequence]
+    while __is_first_column_gap(neighbor, max_sequence_length):
+        __rtrim_sequences(neighbor)
+        max_sequence_length -= 1
 
     return neighbor

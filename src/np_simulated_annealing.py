@@ -10,7 +10,7 @@ from results import Results
 class NpSimulatedAnnealing():
 
 
-	def __init__(self, input_file, optimization) -> None:
+	def __init__(self, input_file, optimization):
 		self.sequences_dictionary = InputParser.read_fasta_to_dict([input_file])
 
 		self.initial: ndarray = InputParser.build_np_array(self.sequences_dictionary)
@@ -23,13 +23,13 @@ class NpSimulatedAnnealing():
 			raise BaseException("Invalid optimization name")
 
 
-	def execute(self, n_iterations: int, initial_temp: int, score_function, generate_neighbor, is_debugging=False,) -> Results:
+	def execute(self, n_iterations: int, initial_temp: int, score_function, generate_neighbor, is_debugging=False):
 		results: Results = Results()
 		iterations_range: range = range(n_iterations)
 
 		if is_debugging:
 			print(
-				"i\tcandidate_eval\tcurr_eval\tbest_eval\tmetropolis_condition\tcurrent_temp\tdiff"
+				"i\tcurrent_temp\tbest_eval\tcurr_eval\tcandidate_eval\tdiff"
 			)
 
 		# generate an initial point
@@ -49,12 +49,12 @@ class NpSimulatedAnnealing():
 			# evaluate candidate point
 			candidate_eval: float = score_function.np_calculate_score(candidate)
 
-			# difference between candidate and current point evaluation
-			diff = candidate_eval - curr_eval
-			optimization_condition = self.optimization.is_better_than_best(diff)
+			# # difference between candidate and current point evaluation
+			# diff = candidate_eval - curr_eval
+			# optimization_condition = self.optimization.is_better_than_best(diff)
 
 			# store new best point
-			if optimization_condition:
+			if candidate_eval < best_eval: # optimization_condition:
 				best = candidate
 				best_eval = candidate_eval
 
@@ -64,6 +64,10 @@ class NpSimulatedAnnealing():
 
 			# check if we should keep the new point
 			current_temp = initial_temp / float(i + 1)
+
+			# # difference between candidate and current point evaluation
+			diff = candidate_eval - curr_eval
+			optimization_condition = self.optimization.is_better_than_best(diff)
 
 			if optimization_condition:
 				# store the new current point
@@ -79,7 +83,8 @@ class NpSimulatedAnnealing():
 
 			if is_debugging:
 				print(
-					"{i:0>5d}\t{candidate_eval:0>8f}\t{curr_eval:0>8f}\t{best_eval:0>8f}\t{random_value}\t{metropolis_condition}\t{current_temp:0>8f}\t{diff:0>8f}".format(
+					"{color}{i:0>5d}\t{current_temp:0>8f}\t{best_eval:0>8f}\t{curr_eval:0>8f}\t{candidate_eval:0>8f}\t{diff:0>+8f}\033[0m".format(
+						color='\033[92m' if diff < 0 else '\033[93m' if diff == 0 else '\033[91m',
 						i=i,
 						candidate_eval=candidate_eval,
 						curr_eval=curr_eval,

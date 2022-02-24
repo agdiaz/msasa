@@ -8,7 +8,7 @@ import multiprocessing as mp
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
 GAP = '-'
-B_GAP = b'-'
+B_GAP = 45
 
 class SequencesComparerFactory:
     @staticmethod
@@ -51,7 +51,6 @@ class SequencesComparer:
         pool.join()
 
         return sum(results)
-
 
     @abstractmethod
     def compare(self, seq_a, seq_b) -> float:
@@ -133,9 +132,9 @@ class MatchingCount(SequencesComparer):
     def __init__(self):
         self.opening_gap_penalty = 2
         self.continuation_gap_penalty = 3
-        self.residue_match = -1
+        self.residue_match = -2
         self.error_penalty = 10
-        self.mismatch_penalty = 1
+        self.mismatch_penalty = 0
         self.half_gap = self.opening_gap_penalty / 2.0
 
 
@@ -171,8 +170,11 @@ class MatchingCount(SequencesComparer):
         return score_total
 
 
-    def np_compare(self, i, combo) -> float:
-        seq_a, seq_b = combo
+    def np_compare(self, i, combo):
+        vec_a, vec_b = combo
+
+        seq_a = [b for b in vec_a]
+        seq_b = [b for b in vec_b]
 
         score_total = 0
         gap_column = False

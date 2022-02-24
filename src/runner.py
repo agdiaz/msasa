@@ -76,7 +76,7 @@ class Runner:
 
 		plt.title("Simulated Annealing - MSA prediction ({0}) - Best results over the time".format(self.sequences_comparer_name))
 		ax.plot(results.records("bests"), color="green", label="Best")
-		ax.plot(results.records("candidates"), color="orange", label="Candidate")
+		# ax.plot(results.records("candidates"), color="orange", label="Candidate")
 
 		ax.set_xlabel('Iterations')
 		ax.set_ylabel('Score', color='green')
