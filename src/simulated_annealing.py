@@ -66,16 +66,18 @@ class SimulatedAnnealing:
             optimization_condition = self.optimization.is_better_than_best(diff)
 
             # store new best point
-            if optimization_condition:
-                best = candidate
+            if optimization_condition:  #para propósitos estadísticos acá sería bueno guardar la iteración en la que se produce el cambio,
+                best = candidate        #el número de evaluaciones realizadas hasta el momento y el tiempo transcurrido.
                 best_eval = candidate_eval
 
             # calculate temperature for current epoch
-            current_temp = initial_temp / float(i + 1)
+            current_temp = initial_temp / float(i + 1) # este paso yo lo dejaría al final del bucle para que resulte sencillo aplicar markov 
+                                                       # y además porque la actualización de la temp se hace luego de la actualización de 
+                                                       # la solución actual
 
             # check if we should keep the new point
-            if optimization_condition:
-                # store the new current point
+            if optimization_condition:        #si no me equivoco con esta bandera se marca si best es mejor que candidate, verdad?
+                # store the new current point  #si es así aquí la comparación debiera hacerse entre curr y candidate
                 curr = candidate
                 curr_eval = candidate_eval
                 metropolis_condition = None
@@ -98,8 +100,8 @@ class SimulatedAnnealing:
                     )
                 )
 
-            results.register_iteration(
-                i,
+            results.register_iteration( #aquí faltarían los datos estadísticos mencionados anteriormente, además del tpo total de ejecución,
+                i,                      #el total de evaluaciones, 
                 candidate_eval,
                 curr_eval,
                 best_eval,
