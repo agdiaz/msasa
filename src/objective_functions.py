@@ -53,11 +53,11 @@ class SequencesComparer:
         return sum(results)
 
     @abstractmethod
-    def compare(self, seq_a, seq_b) -> float:
+    def compare(self, seq_a, seq_b):
         pass
 
     @abstractmethod
-    def np_compare(self, i, combo) -> float:
+    def np_compare(self, i, combo):
         pass
 
 class GlobalMs(SequencesComparer):
@@ -68,7 +68,7 @@ class GlobalMs(SequencesComparer):
         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-    def np_compare(self, i, combo) -> float:
+    def np_compare(self, i, combo):
         pass
 
 class GlobalMsMin(SequencesComparer):
@@ -79,7 +79,7 @@ class GlobalMsMin(SequencesComparer):
         return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-    def np_compare(self, i, combo) -> float:
+    def np_compare(self, i, combo):
         pass
 
 class Blosum(SequencesComparer):
@@ -125,7 +125,7 @@ class Blosum(SequencesComparer):
         except:
             return self.error_score
 
-    def np_compare(self, i, combo) -> float:
+    def np_compare(self, i, combo):
         pass
 
 class MatchingCount(SequencesComparer):
@@ -138,7 +138,7 @@ class MatchingCount(SequencesComparer):
         self.half_gap = self.opening_gap_penalty / 2.0
 
 
-    def compare(self, seq_a, seq_b) -> float:
+    def compare(self, seq_a, seq_b):
         score_total = 0
         gap_column = False
 

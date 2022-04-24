@@ -3,20 +3,20 @@ from math import exp
 
 class OptimizationType:
 	@abstractmethod
-	def is_better_than_best(self, diff) -> bool:
+	def is_better_than_best(self, diff):
 		pass
 
 
 	@abstractmethod
-	def metropolis(self, diff, current_temp) -> float:
+	def metropolis(self, diff, current_temp):
 		pass
 
 class Maximization(OptimizationType):
-	def is_better_than_best(self, diff) -> bool:
+	def is_better_than_best(self, diff):
 		return diff >= 0
 
 
-	def metropolis(self, diff, current_temp) -> float:
+	def metropolis(self, diff, current_temp):
 		"""
 		exp( -(func(NEW) - func(OLD)) / T )
 		exp( -(6 - 9)/T)
@@ -44,11 +44,11 @@ class Minimization(OptimizationType):
 			3 > 0
 			False
 	"""
-	def is_better_than_best(self, diff) -> bool:
+	def is_better_than_best(self, diff):
 		return diff <= 0
 
 
-	def metropolis(self, diff, current_temp) -> float:
+	def metropolis(self, diff, current_temp):
 		"""
 		exp( -(func(NEW) - func(OLD)) / T )
 		exp( -(9 - 6) / T )

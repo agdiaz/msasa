@@ -5,7 +5,7 @@ from simulated_annealing import SimulatedAnnealing
 from np_simulated_annealing import NpSimulatedAnnealing
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description='Process some integers.')
+	parser = argparse.ArgumentParser(description='Multiple sequence alignment using Simulated Annealing')
 	parser.add_argument('--input', dest='input_file', required=True, type=str, help='path to the input file')
 	parser.add_argument('--output', dest='output_file', required=True, type=str, help='path to the output file')
 	parser.add_argument('--comparer', dest='sequences_comparer', required=True, type=str, help='method to compare two sequences')
