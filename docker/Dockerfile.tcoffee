@@ -1,0 +1,6 @@
+FROM ubuntu:jammy
+
+RUN apt-get update && \
+	apt-get install -y autoconf build-essential unzip t-coffee
+
+ENTRYPOINT [ "t_coffee" ]

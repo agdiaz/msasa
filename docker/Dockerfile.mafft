@@ -1,0 +1,15 @@
+FROM alpine:3.16
+RUN apk add --no-cache wget bash
+RUN apk add build-base
+
+RUN mkdir /software
+WORKDIR /software
+
+RUN wget https://mafft.cbrc.jp/alignment/software/mafft-7.505-with-extensions-src.tgz -O ./mafft.tgz && gunzip -cd mafft.tgz | tar xfv -
+
+WORKDIR /software/mafft-7.505-with-extensions/core
+RUN make clean
+RUN make
+RUN make install
+
+ENTRYPOINT ["sh", "/usr/local/bin/mafft"]

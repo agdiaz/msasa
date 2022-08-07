@@ -1,0 +1,10 @@
+FROM alpine:3.16
+RUN apk add --no-cache wget bash
+RUN apk add build-base
+
+RUN mkdir /software
+WORKDIR /software
+RUN wget https://github.com/rcedgar/muscle/releases/download/v5.1/muscle5.1.linux_intel64 -O ./muscle && chmod u+x ./muscle
+RUN chmod -R 777 /software
+
+ENTRYPOINT ["/software/muscle"]

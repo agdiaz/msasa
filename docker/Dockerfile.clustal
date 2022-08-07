@@ -1,0 +1,9 @@
+FROM alpine:3.16
+RUN apk add --no-cache wget bash
+
+RUN mkdir /software
+WORKDIR /software
+RUN wget http://clustal.org/omega/clustalo-1.2.4-Ubuntu-x86_64 -O ./clustalo && chmod u+x ./clustalo
+
+RUN chmod -R 777 /software
+ENTRYPOINT ["/software/clustalo"]

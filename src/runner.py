@@ -13,7 +13,7 @@ plt.ioff()
 class Runner:
 
 
-	def __init__(self, args: Namespace, msa_type: SimulatedAnnealing):
+	def __init__(self, args: Namespace, msa_type: SimulatedAnnealing) -> None:
 		self.input_file: str = args.input_file
 		self.output_file: str = args.output_file
 		self.output_best_plot: str = args.output_best_plot
@@ -31,8 +31,10 @@ class Runner:
 			self.neighbor_generator = msa_neighbor_add_remove
 		elif self.engine == "numpy":
 			self.neighbor_generator = np_msa_neighbor_add_remove
+			
 		else:
 			NameError("Invalid engine name")
+
 
 	def start(self) -> None:
 		results = self._execute_msa()

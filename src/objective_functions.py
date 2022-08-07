@@ -47,8 +47,8 @@ class SequencesComparer:
         result_objects = [pool.apply_async(self.np_compare, args=(i, combo)) for i, combo in enumerate(seq_combinations)]
         results = [r.get() for r in result_objects]
 
-        pool.close()
         pool.join()
+        pool.close()
 
         return sum(results)
 
@@ -59,6 +59,7 @@ class SequencesComparer:
     @abstractmethod
     def np_compare(self, i, combo):
         pass
+
 
 class GlobalMs(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
@@ -71,6 +72,7 @@ class GlobalMs(SequencesComparer):
     def np_compare(self, i, combo):
         pass
 
+
 class GlobalMsMin(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
     # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
@@ -81,6 +83,7 @@ class GlobalMsMin(SequencesComparer):
 
     def np_compare(self, i, combo):
         pass
+
 
 class Blosum(SequencesComparer):
     # https://stackoverflow.com/questions/5686211/is-there-a-function-that-can-calculate-a-score-for-aligned-sequences-given-the-a
@@ -127,6 +130,7 @@ class Blosum(SequencesComparer):
 
     def np_compare(self, i, combo):
         pass
+
 
 class MatchingCount(SequencesComparer):
     def __init__(self):
