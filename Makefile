@@ -27,9 +27,6 @@ run-msasa:
 build-sif-msasa:
 	spython recipe ./Dockerfile > ./docker/msasa.def
 	sudo singularity build ./docker/msasa-blosum.sif ./docker/msasa.def
-	cp ./docker/msasa-blosum.sif ./docker/msasa-globalms
-	cp ./docker/msasa-blosum.sif ./docker/msasa-matching
-
 
 # Clustal Omega
 build-clustalo:

@@ -5,6 +5,14 @@ msa.bin/
 msa.build/
 msa.dist/
 
+.nextflow/*
+work/*
+.nextflow.log*
+workflows/results/*
+
+docker/*.sif
+docker/*.def
+
 test/*.msasa*.fa
 test/*.png
 
