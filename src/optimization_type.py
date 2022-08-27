@@ -34,7 +34,7 @@ class Minimization(OptimizationType):
 	diff = fx(NEW) - fx(OLD)
 	diff < 0 => NEW < OLD
 		eg: fx(NEW) - fx(OLD)
-	    	9       - 12
+			9       - 12
 			-3 < 0
 			True
 

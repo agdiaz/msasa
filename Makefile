@@ -19,14 +19,14 @@ test:
 
 # MSASA
 build-msasa:
-	docker build --tag local/msasa .
+	docker build --tag local/msasa --file ./Dockerfile.python310 .
 
 run-msasa:
 	docker run --rm -it local/msasa --help
 
 build-sif-msasa:
-	spython recipe ./Dockerfile > ./docker/msasa.def
-	sudo singularity build ./docker/msasa-blosum.sif ./docker/msasa.def
+	spython recipe ./Dockerfile.python310 > ./docker/msasa.def
+	sudo singularity build --disable-cache --force ./docker/msasa.sif ./docker/msasa.def
 
 # Clustal Omega
 build-clustalo:
@@ -82,6 +82,22 @@ run-tcoffee:
 build-sif-tcoffee:
 	spython recipe ./docker/Dockerfile.tcoffee > ./docker/tcoffee.def
 	sudo singularity build ./docker/tcoffee.sif ./docker/tcoffee.def
+
+# CIAlign
+build-cialign:
+	docker build --tag local/cialign --file ./docker/Dockerfile.cialign ./docker
+
+build-sif-cialign:
+	spython recipe ./docker/Dockerfile.cialign > ./docker/cialign.def
+	sudo singularity build ./docker/cialign.sif ./docker/cialign.def
+
+# MUMSA
+build-mumsa:
+	docker build --tag local/mumsa --file ./docker/Dockerfile.mumsa ./docker
+
+build-sif-mumsa:
+	spython recipe ./docker/Dockerfile.mumsa > ./docker/mumsa.def
+	sudo singularity build ./docker/mumsa.sif ./docker/mumsa.def
 
 # NextFlow
 run-workflow:

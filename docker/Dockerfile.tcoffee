@@ -1,6 +1,6 @@
 FROM ubuntu:jammy
 
 RUN apt-get update && \
-	apt-get install -y autoconf build-essential unzip t-coffee
+	apt-get install -y autoconf build-essential unzip t-coffee time
 
 ENTRYPOINT [ "t_coffee" ]

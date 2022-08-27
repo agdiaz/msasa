@@ -1,0 +1,11 @@
+FROM alpine:3.16
+RUN apk add --no-cache wget bash build-base
+
+RUN mkdir /software
+WORKDIR /software
+RUN wget http://msa.sbc.su.se/downloads/mumsa-1.0.tgz && tar -xf mumsa-1.0.tgz
+WORKDIR /software/mumsa-1.0
+RUN make
+RUN chmod -R 777 /software
+
+ENTRYPOINT [ "/software/mumsa-1.0/mumsa" ]

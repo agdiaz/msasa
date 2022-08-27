@@ -64,7 +64,8 @@ class InputParser():
         else:
             adjusted_sequences = np.char.rjust(sequences, max_length, fillchar="-")
 
-        return np.array(adjusted_sequences, dtype=np.string_)
+        x = np.array(adjusted_sequences, dtype=bytes)
+        return x.view('S1').reshape((x.size, -1))
 
 
     @staticmethod
@@ -119,8 +120,15 @@ class InputParser():
                 output_file.write(">{0}\n{1}\n".format(index, sequence))
 
     def np_array_to_msa_file(np_array, sequences_dict, file_name):
-        to_str = lambda vector: "".join(vector.decode("utf-8"))
-        sequences = [to_str(s) for s in np_array]
+        sequences = []
+        for seq_ind, row in enumerate(np_array):
+            aligned_sequence = ""
+
+            for column in row:
+                aligned_sequence += column.decode()
+
+            sequences.append(aligned_sequence)
+
         sequence_names = [*sequences_dict['sequences'].keys()]
 
         with open(file_name, "w") as output_file:

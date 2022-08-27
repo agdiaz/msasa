@@ -4,7 +4,7 @@ from random import choice, choices, randint, getrandbits
 from input_parser import InputParser
 import re
 
-B_GAP = 45
+B_GAP = b'-'
 
 def msa_neighbor_add_remove(df, changes=1):
     seq_count = len(df.index)
@@ -49,86 +49,72 @@ def msa_neighbor_add_remove(df, changes=1):
 
     return neighbor
 
-def __is_last_column_gap(sequences, max_sequence_length):
-    return all(s[max_sequence_length - 1] == B_GAP for s in sequences)
-
-def __is_first_column_gap(sequences, max_sequence_length):
-    return all(s[0] == B_GAP for s in sequences)
-
-def __ltrim_sequences(sequences):
-    for index, elem in enumerate(sequences):
-        sequences[index] = elem[:-1]
-
-    # return sequences
-
-def __rtrim_sequences(sequences):
-    for index, elem in enumerate(sequences):
-        sequences[index] = elem[1:]
-
-    # return sequences
 
 def __add_gap(array, index_to_alter = 0, pos = 0):
-    sequence_to_alter = array[index_to_alter]
 
-    new = sequence_to_alter[:pos] + b'-' + sequence_to_alter[pos:]
-    new_max_length = len(new)
+    _rows, cols = array.shape
+    new_array = np.ndarray((0, cols + 1), dtype='|S1')
+    l_trim = pos >= int((cols + 1) / 2)
 
-    if pos >= int(new_max_length / 2):
-        adjusted_sequences = np.char.ljust(array, new_max_length, fillchar="-")
-    else:
-        adjusted_sequences = np.char.rjust(array, new_max_length, fillchar="-")
+    for row_index, row in enumerate(array):
+        if row_index == index_to_alter:
+            new_array = np.vstack([new_array, np.insert(row, pos, b'-')])
+        elif l_trim:
+            new_array = np.vstack([new_array, np.insert(row, 0, b'-')])
+        else:
+            new_array = np.vstack([new_array, np.insert(row, cols, b'-')])
 
-    adjusted_sequences[index_to_alter] = new
-
-    return adjusted_sequences
+    return new_array
 
 def __remove_gap(array, index_to_alter = 0, pos = 0):
-    sequence_to_alter = array[index_to_alter]
+    _rows, cols = array.shape
+    new_array = np.ndarray((0, cols), dtype='|S1')
+    l_trim = pos < int((cols - 1) / 2)
 
-    new = sequence_to_alter[0 : pos : ] + sequence_to_alter[pos + 1 : :]
-    new_max_length = max(len(new), len(max(array, key=len)))
+    for row_index, row in enumerate(array):
+        if row_index == index_to_alter:
+            new_row = np.delete(row, pos)
 
-    if pos < int(new_max_length / 2):
-        adjusted_sequences = np.char.ljust(array, new_max_length, fillchar="-")
-        new = np.char.ljust(new, new_max_length, fillchar="-")
-    else:
-        adjusted_sequences = np.char.rjust(array, new_max_length, fillchar="-")
-        new = np.char.rjust(new, new_max_length, fillchar="-")
+            if l_trim:
+                new_row = np.insert(new_row, 0, b'-')
+            else:
+                new_row = np.insert(new_row, cols - 1, b'-')
 
-    adjusted_sequences[index_to_alter] = new
+            new_array = np.vstack([new_array, new_row])
+        else:
+            new_array = np.vstack([new_array, row])
 
-    return adjusted_sequences
+    return new_array
 
 def np_msa_neighbor_add_remove(np_array, changes=1):
     sequences_count = len(np_array)
     range_of_sequences_count = range(sequences_count)
 
-    while True:
-        random_seq_index = choice(range_of_sequences_count)
-        random_seq = np_array[random_seq_index]
+    neighbor = np_array.copy()
+    while np.array_equal(np_array, neighbor):
+        while True:
+            random_seq_index = choice(range_of_sequences_count)
+            random_seq = np_array[random_seq_index]
 
-        remove_gap = bool(getrandbits(1))
-        if remove_gap:
-            gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
-            if len(gaps) > 0:
+            remove_gap = bool(getrandbits(1))
+            if remove_gap:
+                gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
+                if len(gaps) > 0:
+                    break
+            else:
                 break
+
+        if remove_gap:
+            position_to_edit = choice(gaps)
+            neighbor = __remove_gap(np_array, random_seq_index, position_to_edit)
         else:
-            break
+            position_to_edit = randint(0, len(random_seq) - 1)
+            neighbor = __add_gap(np_array, random_seq_index, position_to_edit)
 
-    if remove_gap:
-        pos = choice([pos for pos, char in enumerate(random_seq) if char == B_GAP])
-        neighbor = __remove_gap(np_array, random_seq_index, pos)
-    else:
-        pos = randint(0, len(random_seq) - 1)
-        neighbor = __add_gap(np_array, random_seq_index, pos)
+        while np.all(neighbor[:, -1] == B_GAP):
+            neighbor = np.delete(neighbor, -1, 1)
 
-    max_sequence_length = len(max(neighbor, key=len))
-    while __is_last_column_gap(neighbor, max_sequence_length):
-        __ltrim_sequences(neighbor)
-        max_sequence_length -= 1
-
-    while __is_first_column_gap(neighbor, max_sequence_length):
-        __rtrim_sequences(neighbor)
-        max_sequence_length -= 1
+        while np.all(neighbor[:, 0] == B_GAP):
+            neighbor = np.delete(neighbor, 0, 1)
 
     return neighbor

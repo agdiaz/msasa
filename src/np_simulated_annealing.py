@@ -36,15 +36,16 @@ class NpSimulatedAnnealing():
 		best = generate_neighbor(self.initial, changes=1)
 
 		# evaluate the initial point
-		best_eval = score_function.np_calculate_score(best)
+		best_eval: float = score_function.np_calculate_score(best)
 
 		# current working solution
-		curr = self.initial.copy()
-		curr_eval = best_eval
+		curr = best.copy()
+		curr_eval: float = best_eval
 
 		for i in iterations_range:
 			# take a step
-			candidate = generate_neighbor(curr)
+			candidate = generate_neighbor(curr.copy())
+			# breakpoint()
 
 			# evaluate candidate point
 			candidate_eval: float = score_function.np_calculate_score(candidate)

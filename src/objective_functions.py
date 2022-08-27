@@ -1,31 +1,18 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from itertools import combinations
 from Bio import pairwise2
 from Bio.SubsMat.MatrixInfo import blosum62 as blosum
 from input_parser import InputParser
 import multiprocessing as mp
+import numpy as np
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
 GAP = '-'
-B_GAP = 45
-
-class SequencesComparerFactory:
-    @staticmethod
-    def from_name(name):
-        if name == "global_ms":
-            return GlobalMs()
-        elif name == "global_ms_min":
-            return GlobalMsMin()
-        elif name == "blosum":
-            return Blosum()
-        elif name == "matching":
-            return MatchingCount()
-        else:
-            raise NameError("Wrong name: {0}".format(name))
+B_GAP = b'-'
 
 
-class SequencesComparer:
+class SequencesComparer(metaclass=ABCMeta):
     def calculate_score(self, alignment_dataframe):
         score_total = 0
         sequences = InputParser.dataframe_to_sequences(alignment_dataframe)
@@ -39,10 +26,10 @@ class SequencesComparer:
 
         return score_total
 
-    def np_calculate_score(self, alignment_nparray):
+    def np_calculate_score(self, alignment_ndarray):
         pool = mp.Pool(mp.cpu_count())
 
-        seq_combinations = combinations(alignment_nparray, 2)
+        seq_combinations = combinations(alignment_ndarray, 2)
 
         result_objects = [pool.apply_async(self.np_compare, args=(i, combo)) for i, combo in enumerate(seq_combinations)]
         results = [r.get() for r in result_objects]
@@ -60,6 +47,45 @@ class SequencesComparer:
     def np_compare(self, i, combo):
         pass
 
+
+class SingleMS(SequencesComparer):
+    # Groups of identical characters are given 1 points * size of the group,
+    # 5 points are deducted for a each gap
+
+    def calculate_score(self, alignment_dataframe):
+        pass
+
+    def np_calculate_score(self, alignment_ndarray):
+        # pool = mp.Pool(mp.cpu_count())
+        columns = alignment_ndarray.transpose()
+
+        # result_objects = [pool.apply_async(self.np_compare, args=(i, combo)) for i, combo in enumerate(columns)]
+        # results = [r.get() for r in result_objects]
+
+        results = []
+        for i, combo in enumerate(columns):
+            r = self.np_compare(i, combo)
+            results.append(r)
+
+        return sum(results)
+
+    def compare(self, seq_a, seq_b):
+        pass
+
+    def np_compare(self, i, column):
+        unique, counts = np.unique(column, return_counts=True)
+        listOfUniqueValues = zip(unique, counts)
+
+        groups = {}
+        total_score = 0 # The less groups, the better score
+
+        for elem in listOfUniqueValues:
+            multiplier = 10 if elem[0] == B_GAP else 1
+            local_score = multiplier * elem[1]
+            total_score += local_score
+            groups[elem[0]] = { 'count': elem[1], 'score': local_score }
+
+        return len(unique) * total_score
 
 class GlobalMs(SequencesComparer):
     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
@@ -209,3 +235,19 @@ class MatchingCount(SequencesComparer):
             score_total += score_local
 
         return score_total
+
+class SequencesComparerFactory:
+    @staticmethod
+    def from_name(name):
+        if name == "global_ms":
+            return GlobalMs()
+        elif name == "global_ms_min":
+            return GlobalMsMin()
+        elif name == "blosum":
+            return Blosum()
+        elif name == "matching":
+            return MatchingCount()
+        elif name == "single_ms":
+            return SingleMS()
+        else:
+            raise NameError("Wrong name: {0}".format(name))

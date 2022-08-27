@@ -15,6 +15,9 @@ docker/*.def
 
 test/*.msasa*.fa
 test/*.png
+test/*.afa
+test/*.html
+test/*.aln
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -16,6 +16,8 @@ if __name__ == "__main__":
 	parser.add_argument('--temperature', dest='initial_temp', required=False, default=10, type=float, help='initial temperature')
 	parser.add_argument('--engine', dest='engine', required=False, default='pandas', type=str, choices=['pandas', 'numpy'], help='engine library to handle data structures')
 	parser.add_argument('--debug', dest='is_debugging', required=False, default=False, type=bool, help='Print out debugging data during the execution of the algorithm')
+	parser.add_argument('--execution-id', dest='execution_id', required=False, default=0, type=int, help='Print out debugging data during the execution of the algorithm')
+
 	args = parser.parse_args()
 
 	if args.engine == 'pandas':
