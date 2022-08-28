@@ -4,6 +4,7 @@ from Bio import pairwise2
 from Bio.SubsMat.MatrixInfo import blosum62 as blosum
 from input_parser import InputParser
 import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor as Pool
 import numpy as np
 
 blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
@@ -129,10 +130,10 @@ class SingleMS(SequencesComparer):
     def np_calculate_score(self, alignment_ndarray):
         columns = alignment_ndarray.transpose()
 
-        with mp.Pool(mp.cpu_count()) as pool:
-            result_objects = pool.map(self.np_compare, columns)
+        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+            result_objects = outer_pool.map(self.np_compare, columns)
 
-            return sum(result_objects)
+        return sum(result_objects)
 
     def compare(self, seq_a, seq_b):
         pass
@@ -141,18 +142,47 @@ class SingleMS(SequencesComparer):
         unique, counts = np.unique(column, return_counts=True)
         listOfUniqueValues = zip(unique, counts)
 
-        groups = {}
-        total_score = 0 # The less groups, the better score
-
-        for (residue, count) in listOfUniqueValues:
-            multiplier = 10 if residue == B_GAP else 1
-
-            local_score = multiplier * count
-            total_score += local_score
-
-            groups[residue] = { 'count': count, 'score': local_score }
+        with Pool(max_workers=2) as inner_pool:
+            result_objects = inner_pool.map(self.score, listOfUniqueValues)
+            total_score = sum(result_objects)
 
         return len(unique) * total_score
+
+    def score(self, tuple):
+        residue, count = tuple
+
+        multiplier = 10 if residue == B_GAP else 1
+
+        local_score = multiplier * count
+        return local_score
+
+
+class SingleMatching(SequencesComparer):
+    # Groups of identical characters are given 1 points * size of the group,
+    # 5 points are deducted for a each gap
+
+    def calculate_score(self, alignment_dataframe):
+        pass
+
+    def np_calculate_score(self, alignment_ndarray):
+        columns = alignment_ndarray.transpose()
+
+        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+            result_objects = outer_pool.map(self.np_compare, columns)
+
+        return len(columns) * sum(result_objects)
+
+    def compare(self, seq_a, seq_b):
+        pass
+
+    def np_compare(self, column):
+        unique = np.unique(column, return_counts=False)
+        if np.array_equal(unique, [B_GAP]):
+            print(unique)
+            return 100
+
+        return len(unique)
+
 
 class SingleBlosum(SequencesComparer):
     # Groups of identical characters are given 1 points * size of the group,
@@ -164,30 +194,40 @@ class SingleBlosum(SequencesComparer):
     def np_calculate_score(self, alignment_ndarray):
         columns = alignment_ndarray.transpose()
 
-        with mp.Pool(mp.cpu_count()) as pool:
-            result_objects = pool.map(self.np_compare, columns)
+        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+            result_objects = outer_pool.map(self.np_compare, columns)
             return sum(result_objects)
 
     def compare(self, seq_a, seq_b):
         pass
 
     def np_compare(self, column):
-        total_score = 0
-
         cs = combinations(column, 2)
-        combinations_count = 0
 
-        for (a, b) in set(cs):
-            combinations_count += 1
-            if a == B_GAP or b == B_GAP:
-                total_score += 10
-            else:
-                try:
-                    total_score -= char_blosum62[a, b]
-                except KeyError:
-                    total_score -= char_blosum62[b, a]
+        with Pool(max_workers=2) as inner_pool:
+            result_objects = inner_pool.map(self.score, set(cs))
 
-        return combinations_count * total_score
+        sum = 0
+        size = 0
+        for result in result_objects:
+            sum += result
+            size += 1
+
+        return size * sum
+
+
+    def score(self, residues_tuple):
+        a, b = residues_tuple
+
+        if a == B_GAP or b == B_GAP:
+            return 20
+        else:
+            try:
+                return -1 * char_blosum62[a, b]
+            except KeyError:
+                return -1 * char_blosum62[b, a]
+            except:
+                return 30
 
 
 class GlobalMs(SequencesComparer):
@@ -354,5 +394,7 @@ class SequencesComparerFactory:
             return SingleMS()
         elif name == "single_blosum":
             return SingleBlosum()
+        elif name == "single_matching":
+            return SingleMatching()
         else:
             raise NameError("Wrong name: {0}".format(name))
