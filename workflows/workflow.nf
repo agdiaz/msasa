@@ -1,10 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.sequences = '/home/adrian/workspace/msasa/test/small_long.fa'
+params.sequences = '/home/adrian/workspace/msasa/test/small_short.fa'
 params.reference = '/home/adrian/workspace/msasa/test/small_short.clustal.fa'
-params.outputDir = 'small_long'
-params.executions = 5
+params.outputDir = 'small_short'
+params.executions = 30
 
 process runClustalOmega {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
@@ -161,7 +161,6 @@ process runTCoffee {
 }
 
 process runMSASA {
-    debug true
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
     input:
@@ -176,7 +175,7 @@ process runMSASA {
     LOG_SINGLE_MS_FILENAME=!{inputFile.baseName}_single_ms.log
     LOG_SINGLE_MS_FILENAME_SORTED=$LOG_SINGLE_MS_FILENAME.sorted
 
-    for ((i=0;i<!{params.executions - 3};i++));
+    for ((i=0;i<!{params.executions};i++));
     do
         OUTPUT_SINGLE_MS_FILENAME=$i.single_ms.afa
         TIME_SINGLE_MS_FILENAME=$i.single_ms.time
@@ -211,6 +210,56 @@ process runMSASA {
     '''
 }
 
+process runMSASABlosum {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path inputFile
+
+    output:
+        path "*.msasa_blosum.afa", emit: msasa_blosum_align
+        path "*.msasa_blosum.time", emit: msasa_blosum_time
+
+    shell:
+    '''
+    LOG_SINGLE_BLOSUM_FILENAME=!{inputFile.baseName}_single_blosum.log
+    LOG_SINGLE_BLOSUM_FILENAME_SORTED=$LOG_SINGLE_BLOSUM_FILENAME.sorted
+
+    for ((i=0;i<!{params.executions};i++));
+    do
+        OUTPUT_SINGLE_BLOSUM_FILENAME=$i.single_blosum.afa
+        TIME_SINGLE_BLOSUM_FILENAME=$i.single_blosum.time
+
+        echo "MSASA Execution # $i started"
+
+        /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
+            --output $OUTPUT_SINGLE_BLOSUM_FILENAME \
+            --comparer single_blosum \
+            --n-iterations 5000 \
+            --temperature 100 \
+            --execution-id $i \
+            --engine numpy \
+            --optimization min >> $LOG_SINGLE_BLOSUM_FILENAME
+    done
+    echo ORIGINAL
+    cat $LOG_SINGLE_BLOSUM_FILENAME
+    cat $LOG_SINGLE_BLOSUM_FILENAME | sort -k 3n --field-separator=";" > $LOG_SINGLE_BLOSUM_FILENAME_SORTED
+
+    echo SORTED
+    cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED
+
+    BEST_SINGLE_BLOSUM=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
+    BEST_SINGLE_BLOSUM_ID=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f4 )
+    BEST_SINGLE_BLOSUM_TIME=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f5 )
+
+    echo BEST_SINGLE_BLOSUM=$BEST_SINGLE_BLOSUM
+    echo BEST_SINGLE_BLOSUM_TIME=$BEST_SINGLE_BLOSUM_TIME
+
+    fold -w 60 -s $BEST_SINGLE_BLOSUM > result.msasa_blosum.afa
+    echo $BEST_SINGLE_BLOSUM_TIME > result.msasa_blosum.time
+    '''
+}
+
 process computeCoreIndex {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
@@ -221,6 +270,7 @@ process computeCoreIndex {
         path muscle
         path t_coffee
         path msasaSingleMs
+        path msasaSingleBlosum
 
     output:
         path "*.core-index.html"
@@ -232,7 +282,8 @@ process computeCoreIndex {
     t_coffee -infile=$mafft -output=html -score -outfile=mafft.core-index.html
     t_coffee -infile=$muscle -output=html -score -outfile=muscle.core-index.html
     t_coffee -infile=$t_coffee -output=html -score -outfile=t_coffee.core-index.html
-    t_coffee -infile=$msasaSingleMs -output=html -score -outfile=msasaSingleMs.core-index.html
+    t_coffee -infile=$msasaSingleMs -output=html -score -outfile=msasa_ssingle_ms.core-index.html
+    t_coffee -infile=$msasaSingleBlosum -output=html -score -outfile=msasa_single_blosum.core-index.html
     """
 }
 
@@ -246,6 +297,7 @@ process computeTransitiveConsistencyScore {
         path muscle
         path t_coffee
         path msasaSingleMs
+        path msasaSingleBlosum
 
     output:
         path "*.tcs.html"
@@ -258,6 +310,7 @@ process computeTransitiveConsistencyScore {
     t_coffee -infile $muscle -evaluate -output=score_html -outfile=muscle.tcs.html
     t_coffee -infile $t_coffee -evaluate -output=score_html -outfile=t_coffee.tcs.html
     t_coffee -infile $msasaSingleMs -evaluate -output=score_html -outfile=msasa_single_ms.tcs.html
+    t_coffee -infile $msasaSingleBlosum -evaluate -output=score_html -outfile=msasa_single_blosum.tcs.html
     """
 }
 
@@ -271,6 +324,7 @@ process computeMatrixScore {
         path muscle
         path t_coffee
         path msasaSingleMs
+        path msasaSingleBlosum
 
     output:
         path "*.tsv"
@@ -283,6 +337,7 @@ process computeMatrixScore {
     CIAlign --infile $muscle --outfile_stem muscle --make_similarity_matrix_input --make_similarity_matrix_output
     CIAlign --infile $t_coffee --outfile_stem t_coffee --make_similarity_matrix_input --make_similarity_matrix_output
     CIAlign --infile $msasaSingleMs --outfile_stem msasa_single_ms --make_similarity_matrix_input --make_similarity_matrix_output
+    CIAlign --infile $msasaSingleBlosum --outfile_stem msasa_single_blosum --make_similarity_matrix_input --make_similarity_matrix_output
     """
 }
 
@@ -296,13 +351,14 @@ process computeMumsaOverlapScore {
         path muscle
         path t_coffee
         path msasaSingleMs
+        path msasaSingleBlosum
 
     output:
-        path "*.overlap"
+        path "*.overlap.txt"
 
     shell:
     """
-    /software/mumsa-1.0/mumsa -r $clustalo $clustalo $kalign $mafft $t_coffee $msasaSingleMs > results.overlap
+    /software/mumsa-1.0/mumsa -r $clustalo $clustalo $kalign $mafft $t_coffee $msasaSingleMs $msasaSingleBlosum > results.overlap.txt
     """
 }
 
@@ -313,6 +369,7 @@ workflow {
     runMuscle(params.sequences)
     runTCoffee(params.sequences)
     runMSASA(params.sequences)
+    runMSASABlosum(params.sequences)
 
     computeCoreIndex(
         runClustalOmega.out.clustalo_align,
@@ -320,7 +377,8 @@ workflow {
         runMAFFT.out.mafft_align,
         runMuscle.out.muscle_align,
         runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align
+        runMSASA.out.msasa_single_ms_align,
+        runMSASABlosum.out.msasa_blosum_align
     )
 
     computeTransitiveConsistencyScore(
@@ -329,7 +387,8 @@ workflow {
         runMAFFT.out.mafft_align,
         runMuscle.out.muscle_align,
         runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align
+        runMSASA.out.msasa_single_ms_align,
+        runMSASABlosum.out.msasa_blosum_align
     )
 
     computeMatrixScore(
@@ -338,7 +397,8 @@ workflow {
         runMAFFT.out.mafft_align,
         runMuscle.out.muscle_align,
         runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align
+        runMSASA.out.msasa_single_ms_align,
+        runMSASABlosum.out.msasa_blosum_align
     )
 
     computeMumsaOverlapScore(
@@ -347,6 +407,7 @@ workflow {
         runMAFFT.out.mafft_align,
         runMuscle.out.muscle_align,
         runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align
+        runMSASA.out.msasa_single_ms_align,
+        runMSASABlosum.out.msasa_blosum_align
     )
 }

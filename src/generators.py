@@ -86,35 +86,50 @@ def __remove_gap(array, index_to_alter = 0, pos = 0):
 
     return new_array
 
-def np_msa_neighbor_add_remove(np_array, changes=1):
+def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int =1):
     sequences_count = len(np_array)
     range_of_sequences_count = range(sequences_count)
 
-    neighbor = np_array.copy()
-    while np.array_equal(np_array, neighbor):
-        while True:
-            random_seq_index = choice(range_of_sequences_count)
-            random_seq = np_array[random_seq_index]
+    new_np_array = np_array.copy()
 
-            remove_gap = bool(getrandbits(1))
-            if remove_gap:
-                gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
-                if len(gaps) > 0:
+    for _change_index in range(changes):
+        neighbor = new_np_array.copy()
+
+        while np.array_equal(new_np_array, neighbor):
+            # print("Neighbor and current are still the same", iteration)
+            attempts_to_safe_remove_gaps = 10
+            remove_gap = False
+
+            while attempts_to_safe_remove_gaps > 0:
+                random_seq_index = choice(range_of_sequences_count)
+                random_seq = np_array[random_seq_index]
+
+                remove_gap = bool(getrandbits(1))
+                if remove_gap:
+                    gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
+                    if len(gaps) > 0:
+                        break
+                    else:
+                        attempts_to_safe_remove_gaps -= 1
+                else:
                     break
+
+            if remove_gap:
+                position_to_edit = choice(gaps)
+                neighbor = __remove_gap(np_array, random_seq_index, position_to_edit)
+                # print("Changed applied removing one GAP", iteration, _change_index)
             else:
-                break
+                position_to_edit = randint(0, len(random_seq) - 1)
+                neighbor = __add_gap(np_array, random_seq_index, position_to_edit)
+                # print("Changed applied adding one GAP", iteration, _change_index)
 
-        if remove_gap:
-            position_to_edit = choice(gaps)
-            neighbor = __remove_gap(np_array, random_seq_index, position_to_edit)
-        else:
-            position_to_edit = randint(0, len(random_seq) - 1)
-            neighbor = __add_gap(np_array, random_seq_index, position_to_edit)
+            while np.all(neighbor[:, -1] == B_GAP):
+                neighbor = np.delete(neighbor, -1, 1)
 
-        while np.all(neighbor[:, -1] == B_GAP):
-            neighbor = np.delete(neighbor, -1, 1)
+            while np.all(neighbor[:, 0] == B_GAP):
+                neighbor = np.delete(neighbor, 0, 1)
 
-        while np.all(neighbor[:, 0] == B_GAP):
-            neighbor = np.delete(neighbor, 0, 1)
+        # print("Neighbor and current are finally distinct!", iteration)
+        new_np_array = neighbor
 
-    return neighbor
+    return new_np_array

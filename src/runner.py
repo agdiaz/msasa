@@ -66,7 +66,7 @@ class Runner:
 
 
 	def _print_results_csv_row(self, results: Results):
-		initial_score = results.records("bests")[1]
+		initial_score = results.records("currents")[1]
 		best, best_score = results.best()
 		print('%s;%f;%f;%d;%s' % (self.output_file, initial_score, best_score, self.execution_id, timedelta(seconds=self.__end-self.__start)))
 
