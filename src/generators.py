@@ -50,40 +50,39 @@ def msa_neighbor_add_remove(df, changes=1):
     return neighbor
 
 def add_gap(array, index_to_alter = 0, pos = 0):
-
-    _rows, cols = array.shape
-    new_array = np.ndarray((0, cols + 1), dtype='|S1')
-    l_trim = pos >= int((cols + 1) / 2)
+    row_list = []
 
     for row_index, row in enumerate(array):
         if row_index == index_to_alter:
-            new_array = np.vstack([new_array, np.insert(row, pos, B_GAP)])
-        elif l_trim:
-            new_array = np.vstack([new_array, np.insert(row, 0, B_GAP)])
+            row_list.extend([np.insert(row, pos, B_GAP)])
         else:
-            new_array = np.vstack([new_array, np.insert(row, cols, B_GAP)])
+            l_trim = random() < 0.5
+            if l_trim:
+                row_list.extend([np.concatenate(([B_GAP], row))])
+            else:
+                row_list.extend([np.append(row, B_GAP)])
 
-    return new_array
+    return np.array(row_list)
+
 
 def remove_gap(array, index_to_alter = 0, pos = 0):
-    _rows, cols = array.shape
-    new_array = np.ndarray((0, cols), dtype='|S1')
-    l_trim = pos < int((cols - 1) / 2)
+    row_list = []
 
     for row_index, row in enumerate(array):
         if row_index == index_to_alter:
             new_row = np.delete(row, pos)
 
-            if l_trim:
-                new_row = np.insert(new_row, 0, B_GAP)
+            if random() < 0.5:
+                new_row = np.concatenate(([B_GAP], new_row))
             else:
-                new_row = np.insert(new_row, cols - 1, B_GAP)
+                new_row = np.append(new_row, B_GAP)
 
-            new_array = np.vstack([new_array, new_row])
+            row_list.extend([new_row])
         else:
-            new_array = np.vstack([new_array, row])
+            row_list.extend([row])
 
-    return new_array
+    return np.array(row_list)
+
 
 def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int = 1):
     sequences_count = len(np_array)
@@ -115,11 +114,9 @@ def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int = 1):
             if should_remove_gap:
                 position_to_edit = choice(gaps)
                 neighbor = remove_gap(neighbor, random_seq_index, position_to_edit)
-                # print("Changed applied removing one GAP", iteration, _change_index)
             else:
                 position_to_edit = randint(0, len(random_seq) - 1)
                 neighbor = add_gap(neighbor, random_seq_index, position_to_edit)
-                # print("Changed applied adding one GAP", iteration, _change_index)
 
             while np.all(neighbor[:, -1] == B_GAP):
                 neighbor = np.delete(neighbor, -1, 1)
@@ -127,7 +124,6 @@ def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int = 1):
             while np.all(neighbor[:, 0] == B_GAP):
                 neighbor = np.delete(neighbor, 0, 1)
 
-        # print("Neighbor and current are finally distinct!", iteration)
         new_np_array = neighbor
 
     return new_np_array

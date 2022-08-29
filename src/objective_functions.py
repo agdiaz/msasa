@@ -129,11 +129,7 @@ class SingleMS(SequencesComparer):
         pass
 
     def np_calculate_score(self, alignment_ndarray):
-        columns = alignment_ndarray.transpose()
-
-        with Pool(max_workers=4) as outer_pool:
-            result_objects = outer_pool.map(self.np_compare, columns)
-
+        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
         return sum(result_objects)
 
     def compare(self, seq_a, seq_b):
@@ -156,12 +152,8 @@ class SingleMatching(SequencesComparer):
         pass
 
     def np_calculate_score(self, alignment_ndarray):
-        columns = alignment_ndarray.transpose()
-
-        with Pool(max_workers=4) as outer_pool:
-            result_objects = outer_pool.map(self.np_compare, columns)
-
-        return len(columns) * sum(result_objects)
+        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
+        return len(result_objects) * sum(result_objects)
 
     def compare(self, seq_a, seq_b):
         pass
@@ -182,11 +174,8 @@ class SingleBlosum(SequencesComparer):
         pass
 
     def np_calculate_score(self, alignment_ndarray):
-        columns = alignment_ndarray.transpose()
-
-        with Pool(max_workers=4) as outer_pool:
-            result_objects = outer_pool.map(self.np_compare, columns)
-            return sum(result_objects)
+        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
+        return sum(result_objects)
 
     def compare(self, seq_a, seq_b):
         pass
