@@ -1,7 +1,7 @@
-from numpy.random import rand
 from numpy import ndarray
 from math import floor
 from input_parser import InputParser
+from random import choice, random
 
 from optimization_type import Maximization, Minimization
 from results import Results
@@ -34,22 +34,24 @@ class NpSimulatedAnnealing():
 			)
 
 		# sequences:
-		rows, cols = self.initial.shape
+		sequences_count, cols = self.initial.shape
 
 		# generate an initial point
-		curr = self.initial.copy()
-
 		# evaluate the initial point
+		curr = self.initial
 		curr_eval: float = score_function.np_calculate_score(curr)
 
+		results.set_initial(curr, curr_eval)
+
 		for i in iterations_range:
+			# take a step
 			curr_temp *= 1 - 0.003
 
-			# take a step
-			changes = max([1, floor(rows / (0.0025 * i + 1))])
-			candidate = generate_neighbor(curr.copy(), i, changes=changes)
+			available_changes = floor(sequences_count / (0.0025 * i + 1))
+			changes = choice(range(1, available_changes + 1))
 
 			# evaluate candidate point
+			candidate = generate_neighbor(curr, i, changes)
 			candidate_eval: float = score_function.np_calculate_score(candidate)
 
 			# calculate temperature for current epoch
@@ -67,12 +69,12 @@ class NpSimulatedAnnealing():
 				criteria = "\033[93mCANDIDATE IS EQUAL TO CURRENT" if diff == 0 else "\033[92mCANDIDATE IS BETTER THAN CURRENT"
 
 				# store the new current point
-				curr = candidate
-				curr_eval = candidate_eval
+				if diff != 0:
+					curr = candidate
+					curr_eval = candidate_eval
 			else:
 				metropolis_condition = self.optimization.metropolis(diff, curr_temp)
-				random_value = rand()
-				if random_value < metropolis_condition:
+				if random() < metropolis_condition:
 					criteria = "\033[95mMETROPOLIS CONDITION"
 					# store the new current point
 					# even if it is not better than the current one
@@ -93,7 +95,7 @@ class NpSimulatedAnnealing():
 					)
 				)
 
-			results.register_iteration(i, changes, candidate_eval, curr_eval, metropolis_condition, curr_temp, diff)
+				# results.register_iteration(i, changes, candidate_eval, curr_eval, metropolis_condition, curr_temp, diff)
 
 		results.set_best(curr, curr_eval)
 		return results

@@ -1,0 +1,10 @@
+FROM python:3.10
+
+RUN mkdir -p /software
+WORKDIR /software
+RUN git clone https://github.com/kyungtaekLIM/seqlim.git
+
+WORKDIR /software/seqlim
+RUN python setup.py install
+
+CMD ["seqlim"]

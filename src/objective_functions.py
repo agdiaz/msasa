@@ -11,6 +11,7 @@ blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
 GAP = '-'
 B_GAP = b'-'
+ALL_GAPS = [B_GAP]
 
 char_blosum62 = {
     (b'W', b'F'): 1, (b'L', b'R'): -2, (b'S', b'P'): -1, (b'V', b'T'): 0,
@@ -130,7 +131,7 @@ class SingleMS(SequencesComparer):
     def np_calculate_score(self, alignment_ndarray):
         columns = alignment_ndarray.transpose()
 
-        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+        with Pool(max_workers=4) as outer_pool:
             result_objects = outer_pool.map(self.np_compare, columns)
 
         return sum(result_objects)
@@ -139,22 +140,12 @@ class SingleMS(SequencesComparer):
         pass
 
     def np_compare(self, column):
-        unique, counts = np.unique(column, return_counts=True)
-        listOfUniqueValues = zip(unique, counts)
+        a, b = np.unique(column, return_counts=True)
+        c = np.stack((a, b), axis = 1)
 
-        with Pool(max_workers=2) as inner_pool:
-            result_objects = inner_pool.map(self.score, listOfUniqueValues)
-            total_score = sum(result_objects)
+        local_scores = np.apply_along_axis(lambda elem: int(elem[1]) * (10 if elem[0] == B_GAP else 1), axis=1, arr=c)
 
-        return len(unique) * total_score
-
-    def score(self, tuple):
-        residue, count = tuple
-
-        multiplier = 10 if residue == B_GAP else 1
-
-        local_score = multiplier * count
-        return local_score
+        return len(local_scores) * sum(local_scores)
 
 
 class SingleMatching(SequencesComparer):
@@ -167,7 +158,7 @@ class SingleMatching(SequencesComparer):
     def np_calculate_score(self, alignment_ndarray):
         columns = alignment_ndarray.transpose()
 
-        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+        with Pool(max_workers=4) as outer_pool:
             result_objects = outer_pool.map(self.np_compare, columns)
 
         return len(columns) * sum(result_objects)
@@ -176,9 +167,8 @@ class SingleMatching(SequencesComparer):
         pass
 
     def np_compare(self, column):
-        unique = np.unique(column, return_counts=False)
-        if np.array_equal(unique, [B_GAP]):
-            print(unique)
+        unique = np.unique(column)
+        if len(unique) == 1 and unique[0] == B_GAP:
             return 100
 
         return len(unique)
@@ -194,7 +184,7 @@ class SingleBlosum(SequencesComparer):
     def np_calculate_score(self, alignment_ndarray):
         columns = alignment_ndarray.transpose()
 
-        with Pool(max_workers=mp.cpu_count()) as outer_pool:
+        with Pool(max_workers=4) as outer_pool:
             result_objects = outer_pool.map(self.np_compare, columns)
             return sum(result_objects)
 
@@ -202,195 +192,185 @@ class SingleBlosum(SequencesComparer):
         pass
 
     def np_compare(self, column):
-        cs = combinations(column, 2)
+        cs = list(combinations(column, 2))
+        cs_arr = np.array(cs)
 
-        with Pool(max_workers=2) as inner_pool:
-            result_objects = inner_pool.map(self.score, set(cs))
+        c = np.apply_along_axis(self.score, axis=1, arr=cs_arr)
 
-        sum = 0
-        size = 0
-        for result in result_objects:
-            sum += result
-            size += 1
-
-        return size * sum
+        return len(list(set(cs))) * sum(c)
 
 
     def score(self, residues_tuple):
         a, b = residues_tuple
 
         if a == B_GAP or b == B_GAP:
-            return 20
+            return 25
         else:
-            try:
-                return -1 * char_blosum62[a, b]
-            except KeyError:
-                return -1 * char_blosum62[b, a]
-            except:
-                return 30
+            res = char_blosum62.get((a, b), char_blosum62.get((b, a), -20))
+            return res * -1
 
 
-class GlobalMs(SequencesComparer):
-    # Identical characters are given 5 points, 4 point is deducted for each non-identical character
-    # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
+# class GlobalMs(SequencesComparer):
+#     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
+#     # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
 
-    def compare(self, seq_a, seq_b):
-        return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
-
-
-    def np_compare(self, i, combo):
-        pass
+#     def compare(self, seq_a, seq_b):
+#         return pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-class GlobalMsMin(SequencesComparer):
-    # Identical characters are given 5 points, 4 point is deducted for each non-identical character
-    # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
-
-    def compare(self, seq_a, seq_b):
-        return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
+#     def np_compare(self, i, combo):
+#         pass
 
 
-    def np_compare(self, i, combo):
-        pass
+# class GlobalMsMin(SequencesComparer):
+#     # Identical characters are given 5 points, 4 point is deducted for each non-identical character
+#     # 3 points are deducted when opening a gap, and 0.1 points are deducted when extending it
+
+#     def compare(self, seq_a, seq_b):
+#         return -1 * pairwise2.align.globalms(seq_a, seq_b, 5, -4, -3, -0.1, score_only=True)
 
 
-class Blosum(SequencesComparer):
-    # https://stackoverflow.com/questions/5686211/is-there-a-function-that-can-calculate-a-score-for-aligned-sequences-given-the-a
-
-    def __init__(self):
-        self.matrix = blosum
-        self.first_gap_score = -0.5
-        self.gap_continuation_score = -0.25
-        self.error_score= -1
-
-    def compare(self, seq_a, seq_b):
-        return self.__score_pairwise(seq_a, seq_b)
-
-    def __score_pairwise(self, seq1, seq2):
-        score = 0
-        gap = False
-
-        for i in range(len(seq1)):
-            pair = (seq1[i], seq2[i])
-
-            if not gap:
-                if GAP in pair:
-                    gap = True
-                    score += self.first_gap_score
-                else:
-                    score += self.__score_match(pair)
-            else:
-                if GAP not in pair:
-                    gap = False
-
-                    score += self.__score_match(pair)
-                else:
-                    score += self.gap_continuation_score
-        return score
-
-    def __score_match(self, pair):
-        try:
-            if pair in self.matrix:
-                return self.matrix[pair]
-            else:
-                return self.matrix[(tuple(reversed(pair)))]
-        except:
-            return self.error_score
-
-    def np_compare(self, i, combo):
-        pass
+#     def np_compare(self, i, combo):
+#         pass
 
 
-class MatchingCount(SequencesComparer):
-    def __init__(self):
-        self.opening_gap_penalty = 2
-        self.continuation_gap_penalty = 3
-        self.residue_match = -2
-        self.error_penalty = 10
-        self.mismatch_penalty = 0
-        self.half_gap = self.opening_gap_penalty / 2.0
+# class Blosum(SequencesComparer):
+#     # https://stackoverflow.com/questions/5686211/is-there-a-function-that-can-calculate-a-score-for-aligned-sequences-given-the-a
+
+#     def __init__(self):
+#         self.matrix = blosum
+#         self.first_gap_score = -0.5
+#         self.gap_continuation_score = -0.25
+#         self.error_score= -1
+
+#     def compare(self, seq_a, seq_b):
+#         return self.__score_pairwise(seq_a, seq_b)
+
+#     def __score_pairwise(self, seq1, seq2):
+#         score = 0
+#         gap = False
+
+#         for i in range(len(seq1)):
+#             pair = (seq1[i], seq2[i])
+
+#             if not gap:
+#                 if GAP in pair:
+#                     gap = True
+#                     score += self.first_gap_score
+#                 else:
+#                     score += self.__score_match(pair)
+#             else:
+#                 if GAP not in pair:
+#                     gap = False
+
+#                     score += self.__score_match(pair)
+#                 else:
+#                     score += self.gap_continuation_score
+#         return score
+
+#     def __score_match(self, pair):
+#         try:
+#             if pair in self.matrix:
+#                 return self.matrix[pair]
+#             else:
+#                 return self.matrix[(tuple(reversed(pair)))]
+#         except:
+#             return self.error_score
+
+#     def np_compare(self, i, combo):
+#         pass
 
 
-    def compare(self, seq_a, seq_b):
-        score_total = 0
-        gap_column = False
-
-        for i in range(len(seq_a)):
-            pos_a = seq_a[i]
-            pos_b = seq_b[i]
-
-            if pos_a == pos_b and pos_a == GAP:
-                if gap_column:
-                    score_local = self.continuation_gap_penalty
-                else:
-                    score_local = self.opening_gap_penalty
-
-                gap_column = True
-            elif pos_a == pos_b:
-                gap_column = False
-                score_local = self.residue_match
-            elif pos_a == GAP or pos_b == GAP:
-                gap_column = False
-                score_local = self.half_gap
-            elif pos_a != pos_b:
-                score_local = self.mismatch_penalty
-            else:
-                gap_column = False
-                score_local = self.error_penalty
-
-            score_total += score_local
-
-        return score_total
+# class MatchingCount(SequencesComparer):
+#     def __init__(self):
+#         self.opening_gap_penalty = 2
+#         self.continuation_gap_penalty = 3
+#         self.residue_match = -2
+#         self.error_penalty = 10
+#         self.mismatch_penalty = 0
+#         self.half_gap = self.opening_gap_penalty / 2.0
 
 
-    def np_compare(self, i, combo):
-        vec_a, vec_b = combo
+#     def compare(self, seq_a, seq_b):
+#         score_total = 0
+#         gap_column = False
 
-        seq_a = [b for b in vec_a]
-        seq_b = [b for b in vec_b]
+#         for i in range(len(seq_a)):
+#             pos_a = seq_a[i]
+#             pos_b = seq_b[i]
 
-        score_total = 0
-        gap_column = False
+#             if pos_a == pos_b and pos_a == GAP:
+#                 if gap_column:
+#                     score_local = self.continuation_gap_penalty
+#                 else:
+#                     score_local = self.opening_gap_penalty
 
-        for i in range(len(seq_a)):
-            pos_a = seq_a[i]
-            pos_b = seq_b[i]
+#                 gap_column = True
+#             elif pos_a == pos_b:
+#                 gap_column = False
+#                 score_local = self.residue_match
+#             elif pos_a == GAP or pos_b == GAP:
+#                 gap_column = False
+#                 score_local = self.half_gap
+#             elif pos_a != pos_b:
+#                 score_local = self.mismatch_penalty
+#             else:
+#                 gap_column = False
+#                 score_local = self.error_penalty
 
-            if pos_a == pos_b and pos_a == B_GAP:
-                if gap_column:
-                    score_local = self.continuation_gap_penalty
-                else:
-                    score_local = self.opening_gap_penalty
+#             score_total += score_local
 
-                gap_column = True
-            elif pos_a == pos_b:
-                gap_column = False
-                score_local = self.residue_match
-            elif pos_a == B_GAP or pos_b == B_GAP:
-                gap_column = False
-                score_local = self.half_gap
-            elif pos_a != pos_b:
-                score_local = self.mismatch_penalty
-            else:
-                gap_column = False
-                score_local = self.error_penalty
+#         return score_total
 
-            score_total += score_local
 
-        return score_total
+#     def np_compare(self, i, combo):
+#         vec_a, vec_b = combo
+
+#         seq_a = [b for b in vec_a]
+#         seq_b = [b for b in vec_b]
+
+#         score_total = 0
+#         gap_column = False
+
+#         for i in range(len(seq_a)):
+#             pos_a = seq_a[i]
+#             pos_b = seq_b[i]
+
+#             if pos_a == pos_b and pos_a == B_GAP:
+#                 if gap_column:
+#                     score_local = self.continuation_gap_penalty
+#                 else:
+#                     score_local = self.opening_gap_penalty
+
+#                 gap_column = True
+#             elif pos_a == pos_b:
+#                 gap_column = False
+#                 score_local = self.residue_match
+#             elif pos_a == B_GAP or pos_b == B_GAP:
+#                 gap_column = False
+#                 score_local = self.half_gap
+#             elif pos_a != pos_b:
+#                 score_local = self.mismatch_penalty
+#             else:
+#                 gap_column = False
+#                 score_local = self.error_penalty
+
+#             score_total += score_local
+
+#         return score_total
 
 class SequencesComparerFactory:
     @staticmethod
     def from_name(name):
-        if name == "global_ms":
-            return GlobalMs()
-        elif name == "global_ms_min":
-            return GlobalMsMin()
-        elif name == "blosum":
-            return Blosum()
-        elif name == "matching":
-            return MatchingCount()
-        elif name == "single_ms":
+        # if name == "global_ms":
+        #     return GlobalMs()
+        # elif name == "global_ms_min":
+        #     return GlobalMsMin()
+        # elif name == "blosum":
+        #     return Blosum()
+        # elif name == "matching":
+        #     return MatchingCount()
+        if name == "single_ms":
             return SingleMS()
         elif name == "single_blosum":
             return SingleBlosum()

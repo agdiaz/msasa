@@ -26,7 +26,7 @@ class Maximization(OptimizationType):
 		try:
 			return exp(diff / current_temp)
 		except OverflowError:
-			print("OVERFLOW WARN: diff=%f temp=%f" % (diff, current_temp))
+			# print("OVERFLOW WARN: diff=%f temp=%f" % (diff, current_temp))
 			return 1
 
 class Minimization(OptimizationType):
@@ -62,5 +62,5 @@ class Minimization(OptimizationType):
 
 			return exp(-diff / current_temp)
 		except OverflowError:
-			print("OVERFLOW WARN: diff=%f temp=%f" % (diff, current_temp))
+			# print("OVERFLOW WARN: diff=%f temp=%f" % (diff, current_temp))
 			return 1

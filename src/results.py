@@ -13,9 +13,18 @@ class Results:
 		self._records = pd.concat([self._records, pd.DataFrame([[i , changes, candidate_eval, curr_eval, metropolis_condition, temp, diff]], columns=self._records.columns)], ignore_index=True)
 
 
+	def set_initial(self, initial, initial_eval):
+		self._initial = initial
+		self._initial_eval =  initial_eval
+
+
 	def set_best(self, new_best, best_eval):
 		self._best = new_best
 		self._best_eval = best_eval
+
+
+	def initial(self):
+		return [self._initial, self._initial_eval]
 
 
 	def best(self):

@@ -8,4 +8,4 @@ RUN /usr/local/bin/python -m pip install --no-cache-dir -r /usr/src/app/requirem
 
 COPY ./src/ /usr/src/app/
 
-CMD [ "/usr/local/bin/python", "/usr/src/app/src/msa.py" ]
+CMD [ "/usr/local/bin/python", "/usr/src/app/msa.py" ]

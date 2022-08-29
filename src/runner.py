@@ -1,3 +1,5 @@
+from Bio import AlignIO
+
 from argparse import Namespace
 from generators import msa_neighbor_add_remove, np_msa_neighbor_add_remove
 from input_parser import InputParser
@@ -66,12 +68,10 @@ class Runner:
 
 
 	def _print_results_csv_row(self, results: Results):
-		initial_score = results.records("currents")[1]
+		initial, initial_score = results.initial()
 		best, best_score = results.best()
 		print('%s;%f;%f;%d;%s' % (self.output_file, initial_score, best_score, self.execution_id, timedelta(seconds=self.__end-self.__start)))
 
-		if self.is_debugging:
-			print(best)
 
 	def _save_results_to_file(self, results: Results):
 		best, __score = results.best()
@@ -79,6 +79,10 @@ class Runner:
 			InputParser.dataframe_to_msa_file(best, self.output_file)
 		else:
 			InputParser.np_array_to_msa_file(best, self.msa.sequences_dictionary, self.output_file)
+
+		if self.is_debugging:
+			with open(self.output_file, "rU") as input_handle:
+				print(input_handle.read())
 
 	def _plot_best_results(self, results: Results):
 		fig, ax = plt.subplots(figsize=(25, 10))

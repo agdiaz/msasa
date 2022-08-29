@@ -1,6 +1,7 @@
 from Bio import SeqIO
 import pandas as pd
 import numpy as np
+from random import random
 
 class InputParser():
     @staticmethod
@@ -59,7 +60,7 @@ class InputParser():
         sequences = [seq_dict['sequence'] for seq_dict in sequences_dictionary['sequences'].values()]
         max_length = sequences_dictionary['max_length']
 
-        if (np.random.rand() > 0.5):
+        if (random() > 0.5):
             adjusted_sequences = np.char.ljust(sequences, max_length, fillchar="-")
         else:
             adjusted_sequences = np.char.rjust(sequences, max_length, fillchar="-")
@@ -122,10 +123,7 @@ class InputParser():
     def np_array_to_msa_file(np_array, sequences_dict, file_name):
         sequences = []
         for seq_ind, row in enumerate(np_array):
-            aligned_sequence = ""
-
-            for column in row:
-                aligned_sequence += column.decode()
+            aligned_sequence = "".join([column.decode() for column in row])
 
             sequences.append(aligned_sequence)
 

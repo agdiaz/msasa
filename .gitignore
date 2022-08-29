@@ -9,6 +9,7 @@ msa.dist/
 work/*
 .nextflow.log*
 workflows/results/*
+workflows/nextflow.log*
 
 docker/*.sif
 docker/*.def
@@ -18,6 +19,10 @@ test/*.png
 test/*.afa
 test/*.html
 test/*.aln
+
+trace.txt*
+test.txt
+test.test
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

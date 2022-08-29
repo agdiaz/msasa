@@ -99,6 +99,23 @@ build-sif-mumsa:
 	spython recipe ./docker/Dockerfile.mumsa > ./docker/mumsa.def
 	sudo singularity build ./docker/mumsa.sif ./docker/mumsa.def
 
+# SEQLIM
+build-seqlim:
+	docker build --tag local/seqlim --file ./docker/Dockerfile.seqlim ./docker
+
+build-sif-seqlim:
+	spython recipe ./docker/Dockerfile.seqlim > ./docker/seqlim.def
+	sudo singularity build ./docker/seqlim.sif ./docker/seqlim.def
+
+
+# BaliBASE Score
+build-baliscore:
+	docker build --tag local/baliscore --file ./docker/Dockerfile.baliscore ./docker
+
+build-sif-baliscore:
+	spython recipe ./docker/Dockerfile.baliscore > ./docker/baliscore.def
+	sudo singularity build --disable-cache --force ./docker/baliscore.sif ./docker/baliscore.def
+
 # NextFlow
 run-workflow:
-	nextflow run ./workflows/workflow.nf -c ./workflows/nextflow.conf
+	nextflow -log ./workflows/nextflow.log run ./workflows/workflow.nf -c ./workflows/nextflow.conf --cores 12 -with-trace
