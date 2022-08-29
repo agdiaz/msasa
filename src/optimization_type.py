@@ -64,3 +64,9 @@ class Minimization(OptimizationType):
 		except OverflowError:
 			# print("OVERFLOW WARN: diff=%f temp=%f" % (diff, current_temp))
 			return 1
+
+def metro(current, candidate, temperature, current_random):
+	diff = current - candidate
+	power = diff / temperature
+
+	return exp(power) > current_random

@@ -84,7 +84,7 @@ def remove_gap(array, index_to_alter = 0, pos = 0):
     return np.array(row_list)
 
 
-def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int = 1):
+def np_msa_neighbor_add_remove(np_array, changes: int = 1):
     sequences_count = len(np_array)
     range_of_sequences_count = range(sequences_count)
 
@@ -94,29 +94,25 @@ def np_msa_neighbor_add_remove(np_array, iteration: int, changes: int = 1):
         neighbor = new_np_array.copy()
 
         while np.array_equal(new_np_array, neighbor):
-            # print("Neighbor and current are still the same", iteration)
-            attempts_to_safe_remove_gaps = 10
-            should_remove_gap = random() < 0.5
+            should_add_gap = random() < 0.5
 
-            while attempts_to_safe_remove_gaps > 0:
+            for _attempt in range(5):
                 random_seq_index = choice(range_of_sequences_count)
                 random_seq = neighbor[random_seq_index]
 
-                if not should_remove_gap:
+                if should_add_gap:
                     break
                 else:
-                    gaps = [pos for pos, char in enumerate(random_seq) if char == B_GAP]
+                    gaps = np.where(random_seq[0] == B_GAP)[0]
                     if len(gaps) > 0:
                         break
-                    else:
-                        attempts_to_safe_remove_gaps -= 1
 
-            if should_remove_gap:
-                position_to_edit = choice(gaps)
-                neighbor = remove_gap(neighbor, random_seq_index, position_to_edit)
-            else:
+            if should_add_gap:
                 position_to_edit = randint(0, len(random_seq) - 1)
                 neighbor = add_gap(neighbor, random_seq_index, position_to_edit)
+            elif len(gaps) > 0:
+                position_to_edit = choice(gaps)
+                neighbor = remove_gap(neighbor, random_seq_index, position_to_edit)
 
             while np.all(neighbor[:, -1] == B_GAP):
                 neighbor = np.delete(neighbor, -1, 1)
