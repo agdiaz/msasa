@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from numpy import exp
+import numexpr as ne
 
 class OptimizationType:
 	@abstractmethod
@@ -18,4 +19,4 @@ def metro(current, candidate, temperature, current_random):
 	diff = current - candidate
 	power = diff / temperature
 
-	return exp(power) > current_random
+	return ne.evaluate("exp(power)") > current_random

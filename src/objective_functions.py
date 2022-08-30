@@ -4,6 +4,8 @@ from itertools import combinations
 # from input_parser import InputParser
 # import numpy as np
 from numpy import array, apply_along_axis, unique, stack
+import numexpr as ne
+
 # blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
 GAP = '-'
@@ -113,7 +115,7 @@ class SingleMS(SequencesComparer):
         columns = alignment_ndarray.shape[1]
         result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
 
-        return columns * sum(result_objects)
+        return columns * ne.evaluate("sum(result_objects)")
 
     def np_compare(self, column):
         a, b = unique(column, return_counts=True)
@@ -121,7 +123,7 @@ class SingleMS(SequencesComparer):
 
         local_scores = apply_along_axis(lambda elem: int(elem[1]) * (10 if elem[0] == B_GAP else 1), axis=1, arr=c)
 
-        return len(local_scores) * sum(local_scores)
+        return len(local_scores) * ne.evaluate("sum(local_scores)")
 
 
 class SingleMatching(SequencesComparer):
@@ -138,7 +140,7 @@ class SingleMatching(SequencesComparer):
         columns = alignment_ndarray.shape[1]
         result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
 
-        return columns * len(result_objects) * sum(result_objects)
+        return columns * len(result_objects) * ne.evaluate("sum(result_objects)")
 
     def np_compare(self, column):
         unique_residues = unique(column)
@@ -165,7 +167,7 @@ class SingleBlosum(SequencesComparer):
         columns = alignment_ndarray.shape[1]
         result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
 
-        return columns * sum(result_objects)
+        return columns * ne.evaluate("sum(result_objects)")
 
     def np_compare(self, column):
         cs = list(combinations(column, 2))
@@ -173,7 +175,7 @@ class SingleBlosum(SequencesComparer):
 
         c = apply_along_axis(self.score, axis=1, arr=cs_arr)
 
-        return len(list(set(cs))) * sum(c)
+        return len(list(set(cs))) * ne.evaluate("sum(c)")
 
     def score(self, residues_tuple):
         a, b = residues_tuple

@@ -1,5 +1,5 @@
 FROM alpine:3.16
-RUN apk add --no-cache wget bash build-base
+RUN apk add --no-cache wget bash build-base R
 
 RUN mkdir /software
 WORKDIR /software

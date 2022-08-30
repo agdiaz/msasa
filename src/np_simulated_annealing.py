@@ -1,8 +1,9 @@
 # import numpy as np
-from numpy import arange, floor, int32, float64
+from numpy import arange, floor, int16, int32, float64
 from numpy.random import rand
 from numpy.lib.recfunctions import append_fields
 from random import randint
+import numexpr as ne
 
 from input_parser import InputParser
 from optimization_type import metro
@@ -28,26 +29,27 @@ class NpSimulatedAnnealing():
 
 		sequences_count    = self.initial.shape[0]
 		iterations_array   = arange(n_iterations, dtype=int32)
-		changes_array      = floor(sequences_count / ((0.0025 * iterations_array) + 1))
-		temperatures_array = initial_temp / ((0.5 * iterations_array) + 1) # -iterations_array * (initial_temp/n_iterations) + initial_temp : TEMP_LINEAR
 		randoms            = rand(n_iterations)
+		changes_array      = ne.evaluate("floor(sequences_count / ((0.0020 * iterations_array) + 1))")
+		temperatures_array = ne.evaluate("initial_temp / ((0.40 * iterations_array) + 1)") # -iterations_array * (initial_temp/n_iterations) + initial_temp : TEMP_LINEAR
+		changes_available  = ne.evaluate("(randoms * (changes_array - 1)) + 1")
 
 		# iterations = np.stack((iterations_array, changes_array, temperatures_array, randoms), axis = 1)
 		iterations = append_fields(
 			iterations_array,
-			['changes', 'temperatures', 'randoms'],
-			[changes_array, temperatures_array, randoms],
+			['changes', 'temperatures', 'randoms', 'changes_available'],
+			[changes_array, temperatures_array, randoms, changes_available],
 			usemask=False,
-			dtypes=[int32, float64, float64]
+			dtypes=[int32, float64, float64, int16]
 		)
 
 		# generate an initial point and evaluate the initial point
 		curr, curr_eval = self.initial, score_function.np_calculate_score(self.initial)
 		results.set_initial(curr, curr_eval)
 
-		for iteration_index, available_changes, curr_temp, iteration_random in iterations:
+		for iteration_index, available_changes, curr_temp, iteration_random, changes in iterations:
 			# evaluate candidate point
-			changes        = 1 if available_changes < 2 else randint(1, available_changes)
+			# changes        = 1 if available_changes < 2 else randint(1, available_changes)
 			candidate      = generate_neighbor(curr, changes)
 			candidate_eval = score_function.np_calculate_score(candidate)
 
@@ -57,13 +59,11 @@ class NpSimulatedAnnealing():
 			original_curr_eval = curr_eval
 			diff               = candidate_eval - curr_eval
 
-			if diff < 0:# self.optimization.is_better_than_best(diff):
+			if diff == 0:# self.optimization.is_better_than_best(diff):
 				criteria = NpSimulatedAnnealing.CRITERIA_EQUAL
-
-				if diff != 0:
-					# store the new current point
-					curr, curr_eval, criteria = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_BETTER
-
+			elif diff < 0:
+				# store the new current point
+				curr, curr_eval, criteria = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_BETTER
 			elif metro(curr_eval, candidate_eval, curr_temp, iteration_random):
 				# store the new current point even if it is not better than the current one
 				curr, curr_eval, criteria  = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_METROPOLIS

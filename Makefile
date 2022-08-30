@@ -2,7 +2,14 @@
 
 # https://github.com/Nuitka/Nuitka
 build:
-	python -m nuitka --static-libpython=no --follow-imports --plugin-enable=numpy --plugin-enable=pyqt5 --assume-yes-for-downloads --standalone --lto src/msa.py
+	# python -m nuitka --static-libpython=no --follow-imports --plugin-enable=numpy --plugin-enable=pyqt5 --assume-yes-for-downloads --standalone --lto src/msa.py
+	python -m nuitka \
+		--follow-imports \
+		--assume-yes-for-downloads \
+		--show-progress \
+		--jobs=12 \
+		--standalone \
+		--show-modules src/msa.py
 
 test:
 	python ./src/msa.py \

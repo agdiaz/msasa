@@ -1,6 +1,7 @@
 numpy
+numexpr
 biopython
-pandas
-matplotlib
+# pandas
+# matplotlib
 # nuitka
 # llvm-openmp
