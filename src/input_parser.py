@@ -1,5 +1,5 @@
 from Bio import SeqIO
-import pandas as pd
+# import pandas as pd
 import numpy as np
 from random import random
 
@@ -69,36 +69,36 @@ class InputParser():
         return x.view('S1').reshape((x.size, -1))
 
 
-    @staticmethod
-    def build_dataframe(sequences_dictionary):
-        max_length = sequences_dictionary['max_length']
-        index = range(max_length)
-        columns = {}
+    # @staticmethod
+    # def build_dataframe(sequences_dictionary):
+    #     max_length = sequences_dictionary['max_length']
+    #     index = range(max_length)
+    #     columns = {}
 
-        for (entry, value) in sequences_dictionary['sequences'].items():
-            residues = value['sequence']
-            if len(residues) < max_length:
-                residues = residues.ljust(max_length, '-')
+    #     for (entry, value) in sequences_dictionary['sequences'].items():
+    #         residues = value['sequence']
+    #         if len(residues) < max_length:
+    #             residues = residues.ljust(max_length, '-')
 
-            columns[entry] = [c for c in residues]
+    #         columns[entry] = [c for c in residues]
 
-        df = pd.DataFrame.from_dict(columns, orient='index', columns=index)
+    #     df = pd.DataFrame.from_dict(columns, orient='index', columns=index)
 
-        last_col_index = max_length - 1
-        while (df[last_col_index] == "-").all():
-            df.drop(df.columns[last_col_index], axis=1, inplace=True)
-            last_col_index -= 1
+    #     last_col_index = max_length - 1
+    #     while (df[last_col_index] == "-").all():
+    #         df.drop(df.columns[last_col_index], axis=1, inplace=True)
+    #         last_col_index -= 1
 
-        return df
+    #     return df
 
-    @staticmethod
-    def dataframe_to_sequences(df):
-        sequences = []
-        for index, row in df.transpose().items():
-            values = df.transpose()[index]
-            sequence = ''.join([x for x in values])
-            sequences.append(sequence)
-        return sequences
+    # @staticmethod
+    # def dataframe_to_sequences(df):
+    #     sequences = []
+    #     for index, row in df.transpose().items():
+    #         values = df.transpose()[index]
+    #         sequence = ''.join([x for x in values])
+    #         sequences.append(sequence)
+    #     return sequences
 
     @staticmethod
     def np_array_to_sequences(np_array):
@@ -106,29 +106,23 @@ class InputParser():
 
         return np_array.view("S%i" % max_length)
 
-    @staticmethod
-    def dataframe_to_msa_file(df, file_name):
-        last_col_index = len(df.columns) - 1
-        while (df[last_col_index] == "-").all():
-            df.drop(df.columns[last_col_index], axis=1, inplace=True)
-            last_col_index -= 1
+    # @staticmethod
+    # def dataframe_to_msa_file(df, file_name):
+    #     last_col_index = len(df.columns) - 1
+    #     while (df[last_col_index] == "-").all():
+    #         df.drop(df.columns[last_col_index], axis=1, inplace=True)
+    #         last_col_index -= 1
 
-        with open(file_name, "w") as output_file:
-            for index, row in df.transpose().items():
-                values = df.transpose()[index]
-                sequence = ''.join([x for x in values])
+    #     with open(file_name, "w") as output_file:
+    #         for index, row in df.transpose().items():
+    #             values = df.transpose()[index]
+    #             sequence = ''.join([x for x in values])
 
-                output_file.write(">{0}\n{1}\n".format(index, sequence))
+    #             output_file.write(">{0}\n{1}\n".format(index, sequence))
 
     def np_array_to_msa_file(np_array, sequences_dict, file_name):
-        sequences = []
-        for seq_ind, row in enumerate(np_array):
-            aligned_sequence = "".join([column.decode() for column in row])
-
-            sequences.append(aligned_sequence)
-
-        sequence_names = [*sequences_dict['sequences'].keys()]
+        sequences = [row.tobytes().decode() for row in np_array]
+        msa_file_lines = [">{0}\n{1}\n".format(sequence_id, residues) for sequence_id, residues in zip(sequences_dict['sequences'].keys(), sequences)]
 
         with open(file_name, "w") as output_file:
-            for seq_ind, sequence in enumerate(sequences):
-                output_file.write(">{0}\n{1}\n".format(sequence_names[seq_ind], sequence))
+            output_file.writelines(msa_file_lines)

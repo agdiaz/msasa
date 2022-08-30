@@ -1,13 +1,10 @@
 from abc import abstractmethod, ABCMeta
 from itertools import combinations
-from Bio import pairwise2
-from Bio.SubsMat.MatrixInfo import blosum62 as blosum
-from input_parser import InputParser
-import multiprocessing as mp
-from concurrent.futures import ProcessPoolExecutor as Pool
-import numpy as np
-
-blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
+# from Bio.SubsMat.MatrixInfo import blosum62 as blosum
+# from input_parser import InputParser
+# import numpy as np
+from numpy import array, apply_along_axis, unique, stack
+# blosum.update(((b,a),val) for (a,b),val in list(blosum.items()))
 
 GAP = '-'
 B_GAP = b'-'
@@ -87,30 +84,11 @@ char_blosum62 = {
 
 class SequencesComparer(metaclass=ABCMeta):
     def calculate_score(self, alignment_dataframe):
-        score_total = 0
-        sequences = InputParser.dataframe_to_sequences(alignment_dataframe)
-        seq_combinations = combinations(sequences, 2)
+        pass
 
-        for combo in seq_combinations:
-            seq_a, seq_b = combo
-
-            combination_score = self.compare(seq_a, seq_b)
-            score_total += combination_score
-
-        return score_total
-
+    @abstractmethod
     def np_calculate_score(self, alignment_ndarray):
-        pool = mp.Pool(mp.cpu_count())
-
-        seq_combinations = combinations(alignment_ndarray, 2)
-
-        result_objects = [pool.apply_async(self.np_compare, args=(i, combo)) for i, combo in enumerate(seq_combinations)]
-        results = [r.get() for r in result_objects]
-
-        pool.close()
-        pool.join()
-
-        return sum(results)
+        pass
 
     @abstractmethod
     def compare(self, seq_a, seq_b):
@@ -128,18 +106,20 @@ class SingleMS(SequencesComparer):
     def calculate_score(self, alignment_dataframe):
         pass
 
-    def np_calculate_score(self, alignment_ndarray):
-        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
-        return sum(result_objects)
-
     def compare(self, seq_a, seq_b):
         pass
 
-    def np_compare(self, column):
-        a, b = np.unique(column, return_counts=True)
-        c = np.stack((a, b), axis = 1)
+    def np_calculate_score(self, alignment_ndarray):
+        columns = alignment_ndarray.shape[1]
+        result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
 
-        local_scores = np.apply_along_axis(lambda elem: int(elem[1]) * (10 if elem[0] == B_GAP else 1), axis=1, arr=c)
+        return columns * sum(result_objects)
+
+    def np_compare(self, column):
+        a, b = unique(column, return_counts=True)
+        c = stack((a, b), axis = 1)
+
+        local_scores = apply_along_axis(lambda elem: int(elem[1]) * (10 if elem[0] == B_GAP else 1), axis=1, arr=c)
 
         return len(local_scores) * sum(local_scores)
 
@@ -151,19 +131,24 @@ class SingleMatching(SequencesComparer):
     def calculate_score(self, alignment_dataframe):
         pass
 
-    def np_calculate_score(self, alignment_ndarray):
-        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
-        return len(result_objects) * sum(result_objects)
-
     def compare(self, seq_a, seq_b):
         pass
 
-    def np_compare(self, column):
-        unique = np.unique(column)
-        if len(unique) == 1 and unique[0] == B_GAP:
-            return 100
+    def np_calculate_score(self, alignment_ndarray):
+        columns = alignment_ndarray.shape[1]
+        result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
 
-        return len(unique)
+        return columns * len(result_objects) * sum(result_objects)
+
+    def np_compare(self, column):
+        unique_residues = unique(column)
+        unique_residues_count = len(unique_residues)
+
+        # ALL GAPS IN A COLUMN:
+        if unique_residues_count == 1 and unique_residues[0] == B_GAP:
+            return 100
+        else:
+            return unique_residues_count
 
 
 class SingleBlosum(SequencesComparer):
@@ -173,26 +158,27 @@ class SingleBlosum(SequencesComparer):
     def calculate_score(self, alignment_dataframe):
         pass
 
-    def np_calculate_score(self, alignment_ndarray):
-        result_objects = np.apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
-        return sum(result_objects)
-
     def compare(self, seq_a, seq_b):
         pass
 
+    def np_calculate_score(self, alignment_ndarray):
+        columns = alignment_ndarray.shape[1]
+        result_objects = apply_along_axis(self.np_compare, axis=0, arr=alignment_ndarray)
+
+        return columns * sum(result_objects)
+
     def np_compare(self, column):
         cs = list(combinations(column, 2))
-        cs_arr = np.array(cs)
+        cs_arr = array(cs)
 
-        c = np.apply_along_axis(self.score, axis=1, arr=cs_arr)
+        c = apply_along_axis(self.score, axis=1, arr=cs_arr)
 
         return len(list(set(cs))) * sum(c)
-
 
     def score(self, residues_tuple):
         a, b = residues_tuple
 
-        if a == B_GAP or b == B_GAP:
+        if B_GAP in (a, b):
             return 25
         else:
             res = char_blosum62.get((a, b), char_blosum62.get((b, a), -20))

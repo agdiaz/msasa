@@ -1,14 +1,11 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001.tfa'
-params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001.xml'
-params.outputDir = 'BB11001'
-// params.sequences = '/home/adrian/workspace/msasa/test/trivial.fa'
-// params.reference = '/home/adrian/workspace/msasa/test/trivial_msa.fa'
-// params.outputDir = 'trivial'
+params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV20/BB20001.tfa'
+params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV20/BB20001'
+params.outputDir = 'BB20001'
 
-params.executions = 1
+params.executions = 3
 
 process runClustalOmega {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
@@ -177,8 +174,8 @@ process runMSASA {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_MS_FILENAME \
             --comparer single_ms \
-            --n-iterations 500 \
-            --temperature 20 \
+            --n-iterations 5000 \
+            --temperature 50 \
             --execution-id $i \
             --engine numpy \
             --optimization min >> $LOG_SINGLE_MS_FILENAME
@@ -220,7 +217,7 @@ process runMSASABlosum {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_BLOSUM_FILENAME \
             --comparer single_blosum \
-            --n-iterations 500 \
+            --n-iterations 5000 \
             --temperature 50 \
             --execution-id $i \
             --engine numpy \
@@ -262,8 +259,8 @@ process runMSASAMatching {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_MATCHING_FILENAME \
             --comparer single_matching \
-            --n-iterations 500 \
-            --temperature 30 \
+            --n-iterations 5000 \
+            --temperature 50 \
             --execution-id $i \
             --engine numpy \
             --optimization min >> $LOG_SINGLE_MATCHING_FILENAME
@@ -315,34 +312,138 @@ process convertFastaToMSF {
     '''
 }
 
-process computeCoreIndex {
+process convertReferenceFromMsfToFasta {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    output:
+        path "reference.fasta", emit: reference_fasta
+
+    shell:
+    """
+    seqlim cnvt ${params.reference}.msf -infmt msf -outfmt fasta -o reference.fasta
+    """
+}
+
+process computeCoreIndexClustalo {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
     input:
-        path clustalo
-        path kalign
-        path mafft
-        path muscle
-        path t_coffee
-        path msasaSingleMs
-        path msasaSingleBlosum
-        path msasaMatchingAlign
+        path alignment
 
     output:
         path "*.core-index.html"
 
     shell:
     """
-    t_coffee -infile=$clustalo -output=html -score -outfile=clustalo.core-index.html
-    t_coffee -infile=$kalign -output=html -score -outfile=kalign.core-index.html
-    t_coffee -infile=$mafft -output=html -score -outfile=mafft.core-index.html
-    t_coffee -infile=$muscle -output=html -score -outfile=muscle.core-index.html
-    t_coffee -infile=$t_coffee -output=html -score -outfile=t_coffee.core-index.html
-    t_coffee -infile=$msasaSingleMs -output=html -score -outfile=msasa_single_ms.core-index.html
-    t_coffee -infile=$msasaSingleBlosum -output=html -score -outfile=msasa_single_blosum.core-index.html
-    t_coffee -infile=$msasaMatchingAlign -output=html -score -outfile=msasa_single_matching.core-index.html
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
     """
 }
+
+process computeCoreIndexKalign {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexMafft {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexMuscle {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexTCoffee {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexMsasa {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexMsasaBlosum {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
+process computeCoreIndexMsasaMatching {
+    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+
+    input:
+        path alignment
+
+    output:
+        path "*.core-index.html"
+
+    shell:
+    """
+    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
+    """
+}
+
 
 process computeTransitiveConsistencyScore {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
@@ -406,6 +507,7 @@ process computeMumsaOverlapScore {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
     input:
+        path reference_fasta
         path clustalo
         path kalign
         path mafft
@@ -416,11 +518,11 @@ process computeMumsaOverlapScore {
         path msasaMatchingAlign
 
     output:
-        path "*.overlap.txt"
+        path "results.overlap.txt"
 
     shell:
     """
-    /software/mumsa-1.0/mumsa -r $clustalo $clustalo $kalign $mafft $t_coffee $msasaSingleMs $msasaSingleBlosum $msasaMatchingAlign > results.overlap.txt
+    /software/mumsa-1.0/mumsa -r -q $reference_fasta $clustalo $kalign $mafft $t_coffee $msasaSingleMs $msasaSingleBlosum $msasaMatchingAlign > results.overlap.txt
     """
 }
 
@@ -435,7 +537,7 @@ process computeBaliScoreClustal {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -450,7 +552,7 @@ process computeBaliScoreKalign {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -465,7 +567,7 @@ process computeBaliScoreMafft {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -480,7 +582,7 @@ process computeBaliScoreMuscle {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -495,7 +597,7 @@ process computeBaliScoreTCoffee {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -510,7 +612,7 @@ process computeBaliScoreMsasa {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -526,7 +628,7 @@ process computeBaliScoreMsasaBlosum {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
@@ -541,12 +643,14 @@ process computeBaliScoreMsasaMatching {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference} -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
     '''
 }
 
 
 workflow {
+    convertReferenceFromMsfToFasta()
+
     runClustalOmega(params.sequences)
     runKalign(params.sequences)
     runMAFFT(params.sequences)
@@ -556,40 +660,39 @@ workflow {
     runMSASABlosum(params.sequences)
     runMSASAMatching(params.sequences)
 
-    computeCoreIndex(
-        runClustalOmega.out.clustalo_align,
-        runKalign.out.kalign_align,
-        runMAFFT.out.mafft_align,
-        runMuscle.out.muscle_align,
-        runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align,
-        runMSASABlosum.out.msasa_blosum_align,
-        runMSASAMatching.out.msasa_matching_align
-    )
+    computeCoreIndexClustalo(runClustalOmega.out.clustalo_align)
+    computeCoreIndexKalign(runKalign.out.kalign_align)
+    computeCoreIndexMafft(runMAFFT.out.mafft_align)
+    computeCoreIndexMuscle(runMuscle.out.muscle_align)
+    computeCoreIndexTCoffee(runTCoffee.out.t_coffee_align)
+    computeCoreIndexMsasa(runMSASA.out.msasa_single_ms_align)
+    computeCoreIndexMsasaBlosum(runMSASABlosum.out.msasa_blosum_align)
+    computeCoreIndexMsasaMatching(runMSASAMatching.out.msasa_matching_align)
 
-    computeTransitiveConsistencyScore(
-        runClustalOmega.out.clustalo_align,
-        runKalign.out.kalign_align,
-        runMAFFT.out.mafft_align,
-        runMuscle.out.muscle_align,
-        runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align,
-        runMSASABlosum.out.msasa_blosum_align,
-        runMSASAMatching.out.msasa_matching_align
-    )
+    // computeTransitiveConsistencyScore(
+    //     runClustalOmega.out.clustalo_align,
+    //     runKalign.out.kalign_align,
+    //     runMAFFT.out.mafft_align,
+    //     runMuscle.out.muscle_align,
+    //     runTCoffee.out.t_coffee_align,
+    //     runMSASA.out.msasa_single_ms_align,
+    //     runMSASABlosum.out.msasa_blosum_align,
+    //     runMSASAMatching.out.msasa_matching_align
+    // )
 
-    computeMatrixScore(
-        runClustalOmega.out.clustalo_align,
-        runKalign.out.kalign_align,
-        runMAFFT.out.mafft_align,
-        runMuscle.out.muscle_align,
-        runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align,
-        runMSASABlosum.out.msasa_blosum_align,
-        runMSASAMatching.out.msasa_matching_align
-    )
+    // computeMatrixScore(
+    //     runClustalOmega.out.clustalo_align,
+    //     runKalign.out.kalign_align,
+    //     runMAFFT.out.mafft_align,
+    //     runMuscle.out.muscle_align,
+    //     runTCoffee.out.t_coffee_align,
+    //     runMSASA.out.msasa_single_ms_align,
+    //     runMSASABlosum.out.msasa_blosum_align,
+    //     runMSASAMatching.out.msasa_matching_align
+    // )
 
     computeMumsaOverlapScore(
+        convertReferenceFromMsfToFasta.out.reference_fasta,
         runClustalOmega.out.clustalo_align,
         runKalign.out.kalign_align,
         runMAFFT.out.mafft_align,
@@ -604,7 +707,6 @@ workflow {
     computeBaliScoreKalign(runKalign.out.kalign_align)
     computeBaliScoreMafft(runMAFFT.out.mafft_align)
     // computeBaliScoreMuscle(runMuscle.out.muscle_align)
-
     computeBaliScoreTCoffee(runTCoffee.out.t_coffee_align)
     computeBaliScoreMsasa(runMSASA.out.msasa_single_ms_align)
     computeBaliScoreMsasaBlosum(runMSASABlosum.out.msasa_blosum_align)
