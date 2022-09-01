@@ -19,20 +19,21 @@ class NpSimulatedAnnealing():
 	CRITERIA_METROPOLIS = "\033[95mMETRO"
 	BEST_UPDATED = "\033[96mBEST"
 
-	def __init__(self, input_file, optimization, sequences_comparer):
+	def __init__(self, input_file, sequences_comparer, inner_loop = False):
 		self.sequences_dictionary = InputParser.read_fasta_to_dict([input_file])
 		self.initial = InputParser.build_np_array(self.sequences_dictionary)
 		self.score_function  = SequencesComparerFactory.from_name(sequences_comparer, self.initial.shape)
+		self.inner_loop = inner_loop
 
 
 	def execute(self, n_iterations: int, initial_temp: float, generate_neighbor, is_debugging=False):
 		if is_debugging:
-			stderr.write("iteration,available_changes,changes_done,temperature,best_score,candidate_score,score_difference,change_criteria,iterations_without_changes\n")
+			stderr.write("iteration,changes_done,temperature,best_score,candidate_score,score_difference,change_criteria,iterations_without_changes\n")
 
 		sequences_count    = self.initial.shape[0]
 		iterations_array   = arange(n_iterations, dtype=int32)
-		no_changes_limit   = int(0.35 * n_iterations)
-		no_changes_count = 0
+		no_changes_limit   = int(0.20 * n_iterations)
+		no_changes_count   = 0
 
 		randoms = rand(n_iterations)
 		temperatures = linspace(initial_temp, 0.001, n_iterations)
@@ -41,10 +42,10 @@ class NpSimulatedAnnealing():
 
 		iterations = append_fields(
 			iterations_array,
-			['changes_available', 'changes', 'temperatures', 'randoms'],
-			[temperatures, changes, temperatures, randoms],
+			['changes', 'temperatures', 'randoms'],
+			[changes, temperatures, randoms],
 			usemask=False,
-			dtypes=[int32, int32, float64, float64]
+			dtypes=[int32, float64, float64]
 		)
 
 		# generate an initial point and evaluate the initial point
@@ -54,10 +55,23 @@ class NpSimulatedAnnealing():
 		results = Results()
 		results.set_initial(curr, curr_eval)
 
-		for iteration_index, changes_available, changes, curr_temp, iteration_random in iterations:
+		for iteration_index, changes, curr_temp, iteration_random in iterations:
 			# evaluate candidate point
-			candidate      = generate_neighbor(curr, changes)
-			candidate_eval = self.score_function.np_calculate_score(candidate)
+
+			iteration_candidate, iteration_candidate_score = curr, curr_eval
+			if self.inner_loop:
+				for _inner_loop_index in range(10):
+					candidate      = generate_neighbor(curr, changes)
+					candidate_eval = self.score_function.np_calculate_score(candidate)
+
+					if candidate_eval <= iteration_candidate_score:
+						iteration_candidate, iteration_candidate_score = candidate, candidate_eval
+
+				candidate, candidate_eval = iteration_candidate, iteration_candidate_score
+			else:
+				candidate      = generate_neighbor(curr, changes)
+				candidate_eval = self.score_function.np_calculate_score(candidate)
+
 			criteria = NpSimulatedAnnealing.CRITERIA_WORSE
 
 			original_curr_eval = curr_eval
@@ -79,10 +93,9 @@ class NpSimulatedAnnealing():
 
 			if is_debugging:
 				stderr.write(
-					"{iteration_index:0>5d},{changes_available:0>4d},{changes:0>4d},{current_temp:0>6f},{curr_eval:0>6f},{candidate_eval:0>6f},{diff:0>+6f},{criteria}\033[0m,{no_changes_count:0>5d}\n".format(
+					"{iteration_index:0>5d},{changes:0>4d},{current_temp:0>6f},{curr_eval:0>6f},{candidate_eval:0>6f},{diff:0>+6f},{criteria}\033[0m,{no_changes_count:0>5d}\n".format(
 						iteration_index=iteration_index,
 						no_changes_count=no_changes_count,
-						changes_available=changes_available,
 						changes=changes,
 						current_temp=curr_temp,
 						curr_eval=original_curr_eval,

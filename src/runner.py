@@ -30,7 +30,7 @@ class Runner:
 		self.initial_temp: int = args.initial_temp
 		self.engine: str = args.engine
 		self.is_debugging: str = args.is_debugging or False
-		self.msa = msa_algorithm(self.input_file, self.optimization, args.sequences_comparer)
+		self.msa = msa_algorithm(self.input_file, args.sequences_comparer)
 
 		# if self.engine == "pandas":
 		# 	self.neighbor_generator = msa_neighbor_add_remove
