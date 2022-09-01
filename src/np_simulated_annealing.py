@@ -1,11 +1,13 @@
 # import numpy as np
-from numpy import arange, floor, int16, int32, float64
+from sys import stderr
+from numpy import arange, int32, float64, geomspace, linspace
 from numpy.random import rand
 from numpy.lib.recfunctions import append_fields
 from random import randint
 import numexpr as ne
 
 from input_parser import InputParser
+from objective_functions import SequencesComparerFactory
 from optimization_type import metro
 from results import Results
 
@@ -14,65 +16,73 @@ class NpSimulatedAnnealing():
 	CRITERIA_BETTER = "\033[92mBETTER"
 	CRITERIA_WORSE = "\033[91mWORSE"
 	CRITERIA_EQUAL = "\033[93mEQUAL"
-	CRITERIA_METROPOLIS = "\033[95mMETROPOLIS"
+	CRITERIA_METROPOLIS = "\033[95mMETRO"
+	BEST_UPDATED = "\033[96mBEST"
 
-	def __init__(self, input_file, optimization):
+	def __init__(self, input_file, optimization, sequences_comparer):
 		self.sequences_dictionary = InputParser.read_fasta_to_dict([input_file])
 		self.initial = InputParser.build_np_array(self.sequences_dictionary)
+		self.score_function  = SequencesComparerFactory.from_name(sequences_comparer, self.initial.shape)
 
 
-	def execute(self, n_iterations: int, initial_temp: float, score_function, generate_neighbor, is_debugging=False):
-		results: Results = Results()
-
+	def execute(self, n_iterations: int, initial_temp: float, generate_neighbor, is_debugging=False):
 		if is_debugging:
-			print("i\tavail_changes\tchanges\tcurrent_temp\tcurr_eval\tcandidate_eval\tdiff\tcriteria")
+			stderr.write("iteration,available_changes,changes_done,temperature,best_score,candidate_score,score_difference,change_criteria,iterations_without_changes\n")
 
 		sequences_count    = self.initial.shape[0]
 		iterations_array   = arange(n_iterations, dtype=int32)
-		randoms            = rand(n_iterations)
-		changes_array      = ne.evaluate("floor(sequences_count / ((0.0020 * iterations_array) + 1))")
-		temperatures_array = ne.evaluate("initial_temp / ((0.40 * iterations_array) + 1)") # -iterations_array * (initial_temp/n_iterations) + initial_temp : TEMP_LINEAR
-		changes_available  = ne.evaluate("(randoms * (changes_array - 1)) + 1")
+		no_changes_limit   = int(0.35 * n_iterations)
+		no_changes_count = 0
 
-		# iterations = np.stack((iterations_array, changes_array, temperatures_array, randoms), axis = 1)
+		randoms = rand(n_iterations)
+		temperatures = linspace(initial_temp, 0.001, n_iterations)
+		available_changes = geomspace(sequences_count, 1, n_iterations)
+		changes = ne.evaluate("(randoms * available_changes)", local_dict={'randoms': randoms, 'available_changes': available_changes})
+
 		iterations = append_fields(
 			iterations_array,
-			['changes', 'temperatures', 'randoms', 'changes_available'],
-			[changes_array, temperatures_array, randoms, changes_available],
+			['changes_available', 'changes', 'temperatures', 'randoms'],
+			[temperatures, changes, temperatures, randoms],
 			usemask=False,
-			dtypes=[int32, float64, float64, int16]
+			dtypes=[int32, int32, float64, float64]
 		)
 
 		# generate an initial point and evaluate the initial point
-		curr, curr_eval = self.initial, score_function.np_calculate_score(self.initial)
+		curr = generate_neighbor(self.initial)
+		curr_eval = self.score_function.np_calculate_score(curr)
+
+		results = Results()
 		results.set_initial(curr, curr_eval)
 
-		for iteration_index, available_changes, curr_temp, iteration_random, changes in iterations:
+		for iteration_index, changes_available, changes, curr_temp, iteration_random in iterations:
 			# evaluate candidate point
-			# changes        = 1 if available_changes < 2 else randint(1, available_changes)
 			candidate      = generate_neighbor(curr, changes)
-			candidate_eval = score_function.np_calculate_score(candidate)
-
+			candidate_eval = self.score_function.np_calculate_score(candidate)
 			criteria = NpSimulatedAnnealing.CRITERIA_WORSE
 
-			# difference between candidate and current point evaluation
 			original_curr_eval = curr_eval
 			diff               = candidate_eval - curr_eval
 
 			if diff == 0:# self.optimization.is_better_than_best(diff):
 				criteria = NpSimulatedAnnealing.CRITERIA_EQUAL
+				no_changes_count += 1
 			elif diff < 0:
 				# store the new current point
 				curr, curr_eval, criteria = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_BETTER
-			elif metro(curr_eval, candidate_eval, curr_temp, iteration_random):
+				no_changes_count = 0
+			elif metro(diff, curr_temp, iteration_random):
 				# store the new current point even if it is not better than the current one
-				curr, curr_eval, criteria  = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_METROPOLIS
+				curr, curr_eval, criteria = candidate, candidate_eval, NpSimulatedAnnealing.CRITERIA_METROPOLIS
+				no_changes_count = 0
+			else:
+				no_changes_count += 1
 
 			if is_debugging:
-				print(
-					"{i:0>5d}\t{available_changes:0>4d}\t{changes:0>4d}\t{current_temp:0>8f}\t{curr_eval:0>8f}\t{candidate_eval:0>8f}\t{diff:0>+8f}\t{criteria}\033[0m".format(
-						i=iteration_index,
-						available_changes=available_changes,
+				stderr.write(
+					"{iteration_index:0>5d},{changes_available:0>4d},{changes:0>4d},{current_temp:0>6f},{curr_eval:0>6f},{candidate_eval:0>6f},{diff:0>+6f},{criteria}\033[0m,{no_changes_count:0>5d}\n".format(
+						iteration_index=iteration_index,
+						no_changes_count=no_changes_count,
+						changes_available=changes_available,
 						changes=changes,
 						current_temp=curr_temp,
 						curr_eval=original_curr_eval,
@@ -81,6 +91,9 @@ class NpSimulatedAnnealing():
 						criteria=criteria
 					)
 				)
+
+			if no_changes_count == no_changes_limit:
+				break
 
 		results.set_best(curr, curr_eval)
 		return results

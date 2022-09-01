@@ -88,7 +88,7 @@ def np_msa_neighbor_add_remove(np_array, changes: int = 1):
     sequences_count = len(np_array)
     range_of_sequences_count = range(sequences_count)
 
-    new_np_array = np_array.copy()
+    new_np_array = np_array
 
     for _change_index in range(changes):
         neighbor = new_np_array.copy()

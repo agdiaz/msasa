@@ -1,6 +1,8 @@
 from abc import abstractmethod
-from numpy import exp
-import numexpr as ne
+from math import exp
+
+# from numpy import exp
+# import numexpr as ne
 
 class OptimizationType:
 	@abstractmethod
@@ -15,8 +17,7 @@ class Minimization(OptimizationType):
 	def is_better_than_best(self, diff):
 		return diff <= 0
 
-def metro(current, candidate, temperature, current_random):
-	diff = current - candidate
-	power = diff / temperature
-
-	return ne.evaluate("exp(power)") > current_random
+def metro(diff, temperature, current_random):
+	power = - diff / temperature
+	return exp(power) > current_random
+	# return ne.evaluate("exp(power)", local_dict={"power": power}) > current_random

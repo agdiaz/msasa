@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV20/BB20001.tfa'
-params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV20/BB20001'
-params.outputDir = 'BB20001'
+params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001.tfa'
+params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001'
+params.outputDir = 'BB11001'
 
-params.executions = 3
+params.executions = 1
 
 process runClustalOmega {
     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
@@ -174,8 +174,8 @@ process runMSASA {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_MS_FILENAME \
             --comparer single_ms \
-            --n-iterations 5000 \
-            --temperature 50 \
+            --n-iterations 1000 \
+            --temperature 10 \
             --execution-id $i \
             --engine numpy \
             --optimization min >> $LOG_SINGLE_MS_FILENAME
@@ -217,8 +217,8 @@ process runMSASABlosum {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_BLOSUM_FILENAME \
             --comparer single_blosum \
-            --n-iterations 5000 \
-            --temperature 50 \
+            --n-iterations 1000 \
+            --temperature 10 \
             --execution-id $i \
             --engine numpy \
             --optimization min >> $LOG_SINGLE_BLOSUM_FILENAME
@@ -259,8 +259,8 @@ process runMSASAMatching {
         /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
             --output $OUTPUT_SINGLE_MATCHING_FILENAME \
             --comparer single_matching \
-            --n-iterations 5000 \
-            --temperature 50 \
+            --n-iterations 100 \
+            --temperature 1 \
             --execution-id $i \
             --engine numpy \
             --optimization min >> $LOG_SINGLE_MATCHING_FILENAME

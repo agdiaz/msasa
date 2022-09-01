@@ -1,7 +1,7 @@
 from argparse import Namespace
 from generators import np_msa_neighbor_add_remove # , msa_neighbor_add_remove
 from input_parser import InputParser
-from objective_functions import SequencesComparer, SequencesComparerFactory
+# from objective_functions import SequencesComparer, SequencesComparerFactory
 
 from timeit import default_timer as timer
 from datetime import timedelta
@@ -16,7 +16,7 @@ from results import Results
 class Runner:
 
 
-	def __init__(self, args: Namespace, msa_type):
+	def __init__(self, args: Namespace, msa_algorithm):
 		self.__end = None
 
 		self.execution_id: int = args.execution_id
@@ -30,8 +30,7 @@ class Runner:
 		self.initial_temp: int = args.initial_temp
 		self.engine: str = args.engine
 		self.is_debugging: str = args.is_debugging or False
-		self.score_function: SequencesComparer = SequencesComparerFactory.from_name(args.sequences_comparer)
-		self.msa = msa_type(self.input_file, self.optimization)
+		self.msa = msa_algorithm(self.input_file, self.optimization, args.sequences_comparer)
 
 		# if self.engine == "pandas":
 		# 	self.neighbor_generator = msa_neighbor_add_remove
@@ -47,7 +46,6 @@ class Runner:
 		results = self.msa.execute(
 			self.n_iterations,
 			self.initial_temp,
-			self.score_function,
 			self.neighbor_generator,
 			self.is_debugging
 		)

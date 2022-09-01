@@ -9,6 +9,8 @@ build:
 		--show-progress \
 		--jobs=12 \
 		--standalone \
+		--plugin-enable=numpy --plugin-enable=pyqt5 \
+		--noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow \
 		--show-modules src/msa.py
 
 test:
