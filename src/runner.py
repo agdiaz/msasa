@@ -1,5 +1,4 @@
 from argparse import Namespace
-from generators import np_msa_neighbor_add_remove # , msa_neighbor_add_remove
 from input_parser import InputParser
 # from objective_functions import SequencesComparer, SequencesComparerFactory
 
@@ -17,8 +16,6 @@ class Runner:
 
 
 	def __init__(self, args: Namespace, msa_algorithm):
-		self.__end = None
-
 		self.execution_id: int = args.execution_id
 		self.input_file: str = args.input_file
 		self.output_file: str = args.output_file
@@ -26,19 +23,10 @@ class Runner:
 		self.output_temp_plot: str = args.output_temp_plot
 		self.sequences_comparer_name: str = args.sequences_comparer
 		self.n_iterations: int = args.n_iterations
-		self.optimization: str = args.optimization
+		self.inner_loop: str = args.inner_loop
 		self.initial_temp: int = args.initial_temp
-		self.engine: str = args.engine
 		self.is_debugging: str = args.is_debugging or False
-		self.msa = msa_algorithm(self.input_file, args.sequences_comparer)
-
-		# if self.engine == "pandas":
-		# 	self.neighbor_generator = msa_neighbor_add_remove
-		# elif self.engine == "numpy":
-		self.neighbor_generator = np_msa_neighbor_add_remove
-
-		# else:
-		# 	NameError("Invalid engine name")
+		self.msa = msa_algorithm(self.input_file, args.sequences_comparer, self.inner_loop)
 
 
 	def start(self):
@@ -46,7 +34,6 @@ class Runner:
 		results = self.msa.execute(
 			self.n_iterations,
 			self.initial_temp,
-			self.neighbor_generator,
 			self.is_debugging
 		)
 		self.__end = timer()

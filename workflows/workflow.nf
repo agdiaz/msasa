@@ -1,510 +1,342 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001.tfa'
-params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV11/BB11001'
-params.outputDir = 'BB11001'
-
-params.executions = 1
+params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.tfa'
+params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.msf'
+params.referenceXml = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.xml'
+params.executions = 30
 
 process runClustalOmega {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "clustalo.afa", emit: clustalo_align
-        path "clustalo.time", emit: clustalo_time
+        tuple path("$executionId.${sequences.simpleName}.clustalo.afa"), path("$executionId.${sequences.simpleName}.clustalo.time")
 
     shell:
     '''
     #!/bin/bash
-    RANDOM_MSA_INDEX=$(( ( RANDOM % !{params.executions} ) ))
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUT_FILE=result_$i
-        echo OUT_FILE=$OUT_FILE
-        /usr/bin/time -p -o $OUT_FILE.time /software/clustalo --force -i !{inputFile} -o $OUT_FILE.afa
-    done
-
-    cp result_$RANDOM_MSA_INDEX.afa clustalo.afa
-    cp result_$RANDOM_MSA_INDEX.time clustalo.time
+    /usr/bin/time -p -o !{executionId}.!{sequences.simpleName}.clustalo.time /software/clustalo --force -i !{sequences} -o !{executionId}.!{sequences.simpleName}.clustalo.afa
     '''
 }
 
 process runKalign {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "kalign.afa", emit: kalign_align
-        path "kalign.time", emit: kalign_time
+        tuple path("$executionId.${sequences.simpleName}.kalign.afa"), path("$executionId.${sequences.simpleName}.kalign.time")
 
     shell:
     '''
     #!/bin/bash
-    RANDOM_MSA_INDEX=$(( ( RANDOM % !{params.executions} ) ))
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUT_FILE=result_$i
-        echo OUT_FILE=$OUT_FILE
-
-        /usr/bin/time -p -o $OUT_FILE.time /software/kalign -input !{inputFile} -output $OUT_FILE.afa -format fasta -quiet
-    done
-
-    cp result_$RANDOM_MSA_INDEX.afa kalign.afa
-    cp result_$RANDOM_MSA_INDEX.time kalign.time
+    /usr/bin/time -p -o !{executionId}.!{sequences.simpleName}.kalign.time /software/kalign -input !{sequences} -output !{executionId}.!{sequences.simpleName}.kalign.afa -format fasta -quiet
     '''
 }
 
 process runMAFFT {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "mafft.afa", emit: mafft_align
-        path "mafft.time", emit: mafft_time
+        tuple path("$executionId.${sequences.simpleName}.mafft.afa"), path("$executionId.${sequences.simpleName}.mafft.time")
 
     shell:
     '''
     #!/bin/bash
-    RANDOM_MSA_INDEX=$(( ( RANDOM % !{params.executions} ) ))
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUT_FILE=result_$i
-        echo OUT_FILE=$OUT_FILE
-
-        /usr/bin/time -p -o $OUT_FILE.time /usr/local/bin/mafft --auto !{inputFile} > $OUT_FILE.afa
-    done
-
-    cp result_$RANDOM_MSA_INDEX.afa mafft.afa
-    cp result_$RANDOM_MSA_INDEX.time mafft.time
+    /usr/bin/time -p -o !{executionId}.!{sequences.simpleName}.mafft.time /usr/local/bin/mafft --auto !{sequences} > !{executionId}.!{sequences.simpleName}.mafft.afa
     '''
 }
 
 process runMuscle {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "muscle.afa", emit: muscle_align
-        path "muscle.time", emit: muscle_time
+        tuple path("$executionId.${sequences.simpleName}.muscle.afa"), path("$executionId.${sequences.simpleName}.muscle.time")
 
     shell:
     '''
-    #!/bin/bash
-    RANDOM_MSA_INDEX=$(( ( RANDOM % !{params.executions} ) ))
+    /usr/bin/time -p -o !{executionId}.!{sequences.simpleName}.muscle.time /software/muscle -align !{sequences} -output temp.afa
 
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUT_FILE=result_$i
-        echo OUT_FILE=$OUT_FILE
-
-        /usr/bin/time -p -o $OUT_FILE.time /software/muscle -align !{inputFile} -output $OUT_FILE.afa
-    done
-
-    fold -w 60 -s result_$RANDOM_MSA_INDEX.afa > muscle.afa
-    cp result_$RANDOM_MSA_INDEX.time muscle.time
+    fold -w 60 -s temp.afa > !{executionId}.!{sequences.simpleName}.muscle.afa
     '''
 }
 
 process runTCoffee {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "t_coffee.afa", emit: t_coffee_align
-        path "t_coffee.time", emit: t_coffee_time
+        tuple path("$executionId.${sequences.simpleName}.t_coffee.afa"), path("$executionId.${sequences.simpleName}.t_coffee.time")
 
     shell:
     '''
     #!/bin/bash
-
-    RANDOM_MSA_INDEX=$(( ( RANDOM % !{params.executions} ) ))
-    echo RANDOM_MSA_INDEX = $RANDOM_MSA_INDEX
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUT_FILE=result_$i
-        echo OUT_FILE=$OUT_FILE
-
-        t_coffee -seq !{inputFile}
-        /usr/bin/time -p --output=$OUT_FILE.time t_coffee -other_pg seq_reformat -in !{inputFile.baseName}.aln -output fasta_aln > $OUT_FILE.afa
-    done
-
-    cp result_$RANDOM_MSA_INDEX.afa t_coffee.afa
-    cp result_$RANDOM_MSA_INDEX.time t_coffee.time
+    t_coffee -seq !{sequences}
+    /usr/bin/time -p --output=!{executionId}.!{sequences.simpleName}.t_coffee.time t_coffee -other_pg seq_reformat -in !{sequences.simpleName}.aln -output fasta_aln > !{executionId}.!{sequences.simpleName}.t_coffee.afa
     '''
 }
 
 process runMSASA {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
     cpus 12
-    errorStrategy 'terminate'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "msasa_single_ms.afa", emit: msasa_single_ms_align
-        path "msasa_single_ms.time", emit: msasa_single_ms_time
+        tuple path("$executionId.${sequences.simpleName}.single_ms.afa"), path("$executionId.${sequences.simpleName}.single_ms.time")
 
     shell:
     '''
-    LOG_SINGLE_MS_FILENAME=!{inputFile.baseName}_single_ms.log
-    LOG_SINGLE_MS_FILENAME_SORTED=$LOG_SINGLE_MS_FILENAME.sorted
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUTPUT_SINGLE_MS_FILENAME=$i.single_ms.afa
-        TIME_SINGLE_MS_FILENAME=$i.single_ms.time
-
-        /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
-            --output $OUTPUT_SINGLE_MS_FILENAME \
-            --comparer single_ms \
-            --n-iterations 1000 \
-            --temperature 10 \
-            --execution-id $i \
-            --engine numpy \
-            --optimization min >> $LOG_SINGLE_MS_FILENAME
-    done
-
-    cat $LOG_SINGLE_MS_FILENAME | sort -k 3n --field-separator=";" > $LOG_SINGLE_MS_FILENAME_SORTED
-
-    BEST_SINGLE_MS=$(cat $LOG_SINGLE_MS_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
-    BEST_SINGLE_MS_ID=$(cat $LOG_SINGLE_MS_FILENAME_SORTED | head -n 1 | cut -d ';' -f4 )
-    BEST_SINGLE_MS_TIME=$(cat $LOG_SINGLE_MS_FILENAME_SORTED | head -n 1 | cut -d ';' -f5 )
-
-    fold -w 60 -s $BEST_SINGLE_MS > msasa_single_ms.afa
-    echo $BEST_SINGLE_MS_TIME > msasa_single_ms.time
+    #!/bin/bash
+    /usr/local/bin/python /usr/src/app/src/msa.py --input !{sequences} \
+        --output !{executionId}.!{sequences.simpleName}.single_ms.afa \
+        --comparer single_ms \
+        --n-iterations 100 \
+        --temperature 10 \
+        --execution-id 1 > !{executionId}.!{sequences.simpleName}.single_ms.time
     '''
 }
 
 process runMSASABlosum {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
     cpus 12
-    errorStrategy 'terminate'
 
     input:
-        path inputFile
+        tuple val(executionId), path(sequences)
 
     output:
-        path "msasa_blosum.afa", emit: msasa_blosum_align
-        path "msasa_blosum.time", emit: msasa_blosum_time
+        tuple path("$executionId.${sequences.simpleName}.single_blosum.afa"), path("$executionId.${sequences.simpleName}.single_blosum.time")
 
     shell:
     '''
-    LOG_SINGLE_BLOSUM_FILENAME=!{inputFile.baseName}_single_blosum.log
-    LOG_SINGLE_BLOSUM_FILENAME_SORTED=$LOG_SINGLE_BLOSUM_FILENAME.sorted
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUTPUT_SINGLE_BLOSUM_FILENAME=$i.single_blosum.afa
-        TIME_SINGLE_BLOSUM_FILENAME=$i.single_blosum.time
-
-        /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
-            --output $OUTPUT_SINGLE_BLOSUM_FILENAME \
-            --comparer single_blosum \
-            --n-iterations 1000 \
-            --temperature 10 \
-            --execution-id $i \
-            --engine numpy \
-            --optimization min >> $LOG_SINGLE_BLOSUM_FILENAME
-    done
-    cat $LOG_SINGLE_BLOSUM_FILENAME | sort -k 3n --field-separator=";" > $LOG_SINGLE_BLOSUM_FILENAME_SORTED
-
-    BEST_SINGLE_BLOSUM=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
-    BEST_SINGLE_BLOSUM_ID=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f4 )
-    BEST_SINGLE_BLOSUM_TIME=$(cat $LOG_SINGLE_BLOSUM_FILENAME_SORTED | head -n 1 | cut -d ';' -f5 )
-
-    fold -w 60 -s $BEST_SINGLE_BLOSUM > msasa_blosum.afa
-    echo $BEST_SINGLE_BLOSUM_TIME > msasa_blosum.time
+    #!/bin/bash
+    /usr/local/bin/python /usr/src/app/src/msa.py --input !{sequences} \
+        --output !{executionId}.!{sequences.simpleName}.single_blosum.afa \
+        --comparer single_blosum \
+        --n-iterations 100 \
+        --temperature 20 \
+        --execution-id 1 > !{executionId}.!{sequences.simpleName}.single_blosum.time
     '''
 }
 
-process runMSASAMatching {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-    cpus 12
-    errorStrategy 'terminate'
+// process convertFastaToMSF {
+//     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
-    input:
-        path inputFile
+//     input:
+//         path clustalo
+//         path kalign
+//         path mafft
+//         path muscle
+//         path t_coffee
+//         path msasaSingleMs
+//         path msasaSingleBlosum
 
-    output:
-        path "msasa_single_matching.afa", emit: msasa_matching_align
-        path "msasa_single_matching.time", emit: msasa_matching_time
+//     output:
+//         path "clustalo.msf", emit: clustaloMsf
+//         path "kalign.msf", emit: kalignMsf
+//         path "mafft.msf", emit: mafftMsf
+//         path "muscle.msf", emit: muscleMsf
+//         path "t_coffee.msf", emit: t_coffeeMsf
+//         path "msasaSingleMs.msf", emit: msasaSingleMsMsf
+//         path "msasaSingleBlosum.msf", emit: msasaSingleBlosumMsf
 
-    shell:
-    '''
-    LOG_SINGLE_MATCHING_FILENAME=!{inputFile.baseName}_single_matching.log
-    LOG_SINGLE_MATCHING_FILENAME_SORTED=$LOG_SINGLE_MATCHING_FILENAME.sorted
-
-    for ((i=0;i<!{params.executions};i++));
-    do
-        OUTPUT_SINGLE_MATCHING_FILENAME=$i.single_matching.afa
-        TIME_SINGLE_MATCHING_FILENAME=$i.single_matching.time
-
-        /usr/local/bin/python /usr/src/app/src/msa.py --input !{inputFile} \
-            --output $OUTPUT_SINGLE_MATCHING_FILENAME \
-            --comparer single_matching \
-            --n-iterations 100 \
-            --temperature 1 \
-            --execution-id $i \
-            --engine numpy \
-            --optimization min >> $LOG_SINGLE_MATCHING_FILENAME
-    done
-    cat $LOG_SINGLE_MATCHING_FILENAME | sort -k 3n --field-separator=";" > $LOG_SINGLE_MATCHING_FILENAME_SORTED
-
-    BEST_SINGLE_MATCHING=$(cat $LOG_SINGLE_MATCHING_FILENAME_SORTED | head -n 1 | cut -d ';' -f1 )
-    BEST_SINGLE_MATCHING_ID=$(cat $LOG_SINGLE_MATCHING_FILENAME_SORTED | head -n 1 | cut -d ';' -f4 )
-    BEST_SINGLE_MATCHING_TIME=$(cat $LOG_SINGLE_MATCHING_FILENAME_SORTED | head -n 1 | cut -d ';' -f5 )
-
-    fold -w 60 -s $BEST_SINGLE_MATCHING > msasa_single_matching.afa
-    echo $BEST_SINGLE_MATCHING_TIME > msasa_single_matching.time
-    '''
-}
-
-process convertFastaToMSF {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
-    input:
-        path clustalo
-        path kalign
-        path mafft
-        path muscle
-        path t_coffee
-        path msasaSingleMs
-        path msasaSingleBlosum
-        path msasaMatchingAlign
-
-    output:
-        path "clustalo.msf", emit: clustaloMsf
-        path "kalign.msf", emit: kalignMsf
-        path "mafft.msf", emit: mafftMsf
-        path "muscle.msf", emit: muscleMsf
-        path "t_coffee.msf", emit: t_coffeeMsf
-        path "msasaSingleMs.msf", emit: msasaSingleMsMsf
-        path "msasaSingleBlosum.msf", emit: msasaSingleBlosumMsf
-        path "msasaMatchingAlign.msf", emit: msasaMatchingAlignMsf
-
-    shell:
-    '''
-    seqlim -outfmt msf -o clustalo.msf cnvt !{clustalo}
-    seqlim -outfmt msf -o kalign.msf cnvt !{kalign}
-    seqlim -outfmt msf -o mafft.msf cnvt !{mafft}
-    seqlim -outfmt msf -o muscle.msf cnvt !{muscle}
-    seqlim -outfmt msf -o t_coffee.msf cnvt !{t_coffee}
-    seqlim -outfmt msf -o msasaSingleMs.msf cnvt !{msasaSingleMs}
-    seqlim -outfmt msf -o msasaSingleBlosum.msf cnvt !{msasaSingleBlosum}
-    seqlim -outfmt msf -o msasaMatchingAlign.msf cnvt !{msasaMatchingAlign}
-    '''
-}
+//     shell:
+//     '''
+//     seqlim -outfmt msf -o clustalo.msf cnvt !{clustalo}
+//     seqlim -outfmt msf -o kalign.msf cnvt !{kalign}
+//     seqlim -outfmt msf -o mafft.msf cnvt !{mafft}
+//     seqlim -outfmt msf -o muscle.msf cnvt !{muscle}
+//     seqlim -outfmt msf -o t_coffee.msf cnvt !{t_coffee}
+//     seqlim -outfmt msf -o msasaSingleMs.msf cnvt !{msasaSingleMs}
+//     seqlim -outfmt msf -o msasaSingleBlosum.msf cnvt !{msasaSingleBlosum}
+//     '''
+// }
 
 process convertReferenceFromMsfToFasta {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
     output:
-        path "reference.fasta", emit: reference_fasta
+        path "reference.fasta", emit: fasta
 
     shell:
-    """
-    seqlim cnvt ${params.reference}.msf -infmt msf -outfmt fasta -o reference.fasta
-    """
+    '''
+    seqlim cnvt !{params.reference} -infmt msf -outfmt fasta -o reference.fasta
+    '''
 }
 
-process computeCoreIndexClustalo {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexClustalo {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexKalign {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexKalign {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexMafft {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexMafft {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexMuscle {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexMuscle {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexTCoffee {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexTCoffee {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexMsasa {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexMsasa {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
-process computeCoreIndexMsasaBlosum {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeCoreIndexMsasaBlosum {
+//     publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
-    input:
-        path alignment
+//     input:
+//         path alignment
 
-    output:
-        path "*.core-index.html"
+//     output:
+//         path "*.core-index.html"
 
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
-
-process computeCoreIndexMsasaMatching {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
-    input:
-        path alignment
-
-    output:
-        path "*.core-index.html"
-
-    shell:
-    """
-    t_coffee -infile=$alignment -output=html -score -outfile=${alignment.baseName}.core-index.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile=$alignment -output=html -score -outfile=${alignment.simpleName}.coreindex.html
+//     """
+// }
 
 
-process computeTransitiveConsistencyScore {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeTransitiveConsistencyScore {
+//     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
-    input:
-        path clustalo
-        path kalign
-        path mafft
-        path muscle
-        path t_coffee
-        path msasaSingleMs
-        path msasaSingleBlosum
-        path msasaMatchingAlign
+//     input:
+//         path clustalo
+//         path kalign
+//         path mafft
+//         path muscle
+//         path t_coffee
+//         path msasaSingleMs
+//         path msasaSingleBlosum
 
-    output:
-        path "*.tcs.html"
+//     output:
+//         path "*.tcs.html"
 
-    shell:
-    """
-    t_coffee -infile $clustalo -evaluate -output=score_html -outfile=clustalo.tcs.html
-    t_coffee -infile $kalign -evaluate -output=score_html -outfile=kalign.tcs.html
-    t_coffee -infile $mafft -evaluate -output=score_html -outfile=mafft.tcs.html
-    t_coffee -infile $muscle -evaluate -output=score_html -outfile=muscle.tcs.html
-    t_coffee -infile $t_coffee -evaluate -output=score_html -outfile=t_coffee.tcs.html
-    t_coffee -infile $msasaSingleMs -evaluate -output=score_html -outfile=msasa_single_ms.tcs.html
-    t_coffee -infile $msasaSingleBlosum -evaluate -output=score_html -outfile=msasa_single_blosum.tcs.html
-    t_coffee -infile $msasaMatchingAlign -evaluate -output=score_html -outfile=msasa_single_matching.tcs.html
-    """
-}
+//     shell:
+//     """
+//     t_coffee -infile $clustalo -evaluate -output=score_html -outfile=clustalo.tcs.html
+//     t_coffee -infile $kalign -evaluate -output=score_html -outfile=kalign.tcs.html
+//     t_coffee -infile $mafft -evaluate -output=score_html -outfile=mafft.tcs.html
+//     t_coffee -infile $muscle -evaluate -output=score_html -outfile=muscle.tcs.html
+//     t_coffee -infile $t_coffee -evaluate -output=score_html -outfile=t_coffee.tcs.html
+//     t_coffee -infile $msasaSingleMs -evaluate -output=score_html -outfile=msasa_single_ms.tcs.html
+//     t_coffee -infile $msasaSingleBlosum -evaluate -output=score_html -outfile=msasa_single_blosum.tcs.html
+//     """
+// }
 
-process computeMatrixScore {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+// process computeMatrixScore {
+//     publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
 
-    input:
-        path clustalo
-        path kalign
-        path mafft
-        path muscle
-        path t_coffee
-        path msasaSingleMs
-        path msasaSingleBlosum
-        path msasaMatchingAlign
+//     input:
+//         path clustalo
+//         path kalign
+//         path mafft
+//         path muscle
+//         path t_coffee
+//         path msasaSingleMs
+//         path msasaSingleBlosum
 
-    output:
-        path "*.tsv"
+//     output:
+//         path "*.tsv"
 
-    shell:
-    """
-    CIAlign --infile $clustalo --outfile_stem clustalo --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $kalign --outfile_stem kalign --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $mafft --outfile_stem mafft --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $muscle --outfile_stem muscle --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $t_coffee --outfile_stem t_coffee --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $msasaSingleMs --outfile_stem msasa_single_ms --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $msasaSingleBlosum --outfile_stem msasa_single_blosum --make_similarity_matrix_input --make_similarity_matrix_output
-    CIAlign --infile $msasaMatchingAlign --outfile_stem msasa_single_matching --make_similarity_matrix_input --make_similarity_matrix_output
-    """
-}
+//     shell:
+//     """
+//     CIAlign --infile $clustalo --outfile_stem clustalo --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $kalign --outfile_stem kalign --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $mafft --outfile_stem mafft --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $muscle --outfile_stem muscle --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $t_coffee --outfile_stem t_coffee --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $msasaSingleMs --outfile_stem msasa_single_ms --make_similarity_matrix_input --make_similarity_matrix_output
+//     CIAlign --infile $msasaSingleBlosum --outfile_stem msasa_single_blosum --make_similarity_matrix_input --make_similarity_matrix_output
+//     """
+// }
 
 process computeMumsaOverlapScore {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+    publishDir "$baseDir/results/$clustalo.simpleName", mode: 'copy'
 
     input:
         path reference_fasta
@@ -515,19 +347,18 @@ process computeMumsaOverlapScore {
         path t_coffee
         path msasaSingleMs
         path msasaSingleBlosum
-        path msasaMatchingAlign
 
     output:
-        path "results.overlap.txt"
+        path "*.overlap.txt"
 
     shell:
     """
-    /software/mumsa-1.0/mumsa -r -q $reference_fasta $clustalo $kalign $mafft $t_coffee $msasaSingleMs $msasaSingleBlosum $msasaMatchingAlign > results.overlap.txt
+    /software/mumsa-1.0/mumsa -r -q $reference_fasta $clustalo $kalign $mafft $t_coffee $msasaSingleMs $msasaSingleBlosum > ${clustalo.simpleName}.overlap.txt
     """
 }
 
-process computeBaliScoreClustal {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+process computeBaliScore {
+    publishDir "$baseDir/results/$alignment.simpleName", mode: 'copy'
 
     input:
         path alignment
@@ -537,178 +368,192 @@ process computeBaliScoreClustal {
 
     shell:
     '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
+    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.referenceXml} -o !{alignment.baseName}.baliscore.txt
     '''
 }
 
-process computeBaliScoreKalign {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
+process getClustalSample {
 
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-process computeBaliScoreMafft {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getKalignSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-process computeBaliScoreMuscle {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getMafftSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-process computeBaliScoreTCoffee {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getMuscleSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-process computeBaliScoreMsasa {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getTCoffeeSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-
-process computeBaliScoreMsasaBlosum {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getSingleMSSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
-process computeBaliScoreMsasaMatching {
-    publishDir "$baseDir/results/$params.outputDir", mode: 'copy'
-
+process getSingleBlosumSample {
     input:
-        path alignment
-
+        tuple path(x), path(y)
     output:
-        path "*.baliscore.txt"
+        path(x), emit: sampleAlignment
+        path(y), emit: sample_timing
 
-    shell:
-    '''
-    /software/bali-score/target/release/bali-score -t !{alignment} -r !{params.reference}.xml -o !{alignment}.baliscore.txt
-    '''
+    script:
+    """
+    echo $x
+    echo $y
+    """
 }
 
+workflow runMSAtools {
+    take: sequences
+    main:
+        runClustalOmega(sequences)
+        runKalign(sequences)
+        runMAFFT(sequences)
+        runMuscle(sequences)
+        runTCoffee(sequences)
+        runMSASA(sequences)
+        runMSASABlosum(sequences)
+
+    emit:
+        clustalAlignment = runClustalOmega.out
+        kalignAlignment = runKalign.out
+        mafftAlignment = runMAFFT.out
+        muscleAlignment = runMuscle.out
+        tcoffeeAlignment = runTCoffee.out
+        singleMsAlignment = runMSASA.out
+        singleBlosumAlignment = runMSASABlosum.out
+
+}
+
+workflow computeAnalytics {
+    take:
+        clustalAlignment
+        kalignAlignment
+        mafftAlignment
+        muscleAlignment
+        tcoffeeAlignment
+        singleMsAlignment
+        singleBlosumAlignment
+    main:
+        convertReferenceFromMsfToFasta()
+
+        computeMumsaOverlapScore(
+            convertReferenceFromMsfToFasta.out.fasta,
+            clustalAlignment,
+            kalignAlignment,
+            mafftAlignment,
+            muscleAlignment,
+            tcoffeeAlignment,
+            singleMsAlignment,
+            singleBlosumAlignment,
+        )
+}
 
 workflow {
-    convertReferenceFromMsfToFasta()
+    sequencesChannel = Channel.from( 1 .. params.iterations ).map { it -> [ number: it, sequences: params.sequences ] }
 
-    runClustalOmega(params.sequences)
-    runKalign(params.sequences)
-    runMAFFT(params.sequences)
-    runMuscle(params.sequences)
-    runTCoffee(params.sequences)
-    runMSASA(params.sequences)
-    runMSASABlosum(params.sequences)
-    runMSASAMatching(params.sequences)
+    runClustalOmega(sequencesChannel)
+    runKalign(sequencesChannel)
+    runMAFFT(sequencesChannel)
+    runMuscle(sequencesChannel)
+    runTCoffee(sequencesChannel)
+    runMSASA(sequencesChannel)
+    runMSASABlosum(sequencesChannel)
 
-    computeCoreIndexClustalo(runClustalOmega.out.clustalo_align)
-    computeCoreIndexKalign(runKalign.out.kalign_align)
-    computeCoreIndexMafft(runMAFFT.out.mafft_align)
-    computeCoreIndexMuscle(runMuscle.out.muscle_align)
-    computeCoreIndexTCoffee(runTCoffee.out.t_coffee_align)
-    computeCoreIndexMsasa(runMSASA.out.msasa_single_ms_align)
-    computeCoreIndexMsasaBlosum(runMSASABlosum.out.msasa_blosum_align)
-    computeCoreIndexMsasaMatching(runMSASAMatching.out.msasa_matching_align)
+    getClustalSample(runClustalOmega.out.randomSample(1))
+    getKalignSample(runKalign.out.randomSample(1))
+    getMafftSample(runMAFFT.out.randomSample(1))
+    getMuscleSample(runMuscle.out.randomSample(1))
+    getTCoffeeSample(runTCoffee.out.randomSample(1))
+    getSingleMSSample(runMSASA.out.randomSample(1))
+    getSingleBlosumSample(runMSASABlosum.out.randomSample(1))
 
-    // computeTransitiveConsistencyScore(
-    //     runClustalOmega.out.clustalo_align,
-    //     runKalign.out.kalign_align,
-    //     runMAFFT.out.mafft_align,
-    //     runMuscle.out.muscle_align,
-    //     runTCoffee.out.t_coffee_align,
-    //     runMSASA.out.msasa_single_ms_align,
-    //     runMSASABlosum.out.msasa_blosum_align,
-    //     runMSASAMatching.out.msasa_matching_align
-    // )
-
-    // computeMatrixScore(
-    //     runClustalOmega.out.clustalo_align,
-    //     runKalign.out.kalign_align,
-    //     runMAFFT.out.mafft_align,
-    //     runMuscle.out.muscle_align,
-    //     runTCoffee.out.t_coffee_align,
-    //     runMSASA.out.msasa_single_ms_align,
-    //     runMSASABlosum.out.msasa_blosum_align,
-    //     runMSASAMatching.out.msasa_matching_align
-    // )
-
-    computeMumsaOverlapScore(
-        convertReferenceFromMsfToFasta.out.reference_fasta,
-        runClustalOmega.out.clustalo_align,
-        runKalign.out.kalign_align,
-        runMAFFT.out.mafft_align,
-        runMuscle.out.muscle_align,
-        runTCoffee.out.t_coffee_align,
-        runMSASA.out.msasa_single_ms_align,
-        runMSASABlosum.out.msasa_blosum_align,
-        runMSASAMatching.out.msasa_matching_align
+    alignments = getClustalSample.out.sampleAlignment.concat(
+        getKalignSample.out.sampleAlignment,
+        getMafftSample.out.sampleAlignment,
+        // getMuscleSample.out.sampleAlignment,
+        getTCoffeeSample.out.sampleAlignment,
+        getSingleMSSample.out.sampleAlignment,
+        getSingleBlosumSample.out.sampleAlignment
     )
 
-    computeBaliScoreClustal(runClustalOmega.out.clustalo_align)
-    computeBaliScoreKalign(runKalign.out.kalign_align)
-    computeBaliScoreMafft(runMAFFT.out.mafft_align)
-    // computeBaliScoreMuscle(runMuscle.out.muscle_align)
-    computeBaliScoreTCoffee(runTCoffee.out.t_coffee_align)
-    computeBaliScoreMsasa(runMSASA.out.msasa_single_ms_align)
-    computeBaliScoreMsasaBlosum(runMSASABlosum.out.msasa_blosum_align)
-    computeBaliScoreMsasaMatching(runMSASAMatching.out.msasa_matching_align)
+    computeAnalytics(
+        getClustalSample.out.sampleAlignment,
+        getKalignSample.out.sampleAlignment,
+        getMafftSample.out.sampleAlignment,
+        getMuscleSample.out.sampleAlignment,
+        getTCoffeeSample.out.sampleAlignment,
+        getSingleMSSample.out.sampleAlignment,
+        getSingleBlosumSample.out.sampleAlignment
+    )
+
+    computeBaliScore(alignments)
 }

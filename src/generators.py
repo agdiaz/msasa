@@ -1,125 +1,69 @@
-import numpy as np
-from random import choice, randint, random #, getrandbits, chances
-# from input_parser import InputParser
-# import re
+# import numpy as np
+from numpy import array, all, delete, insert, array_equal, nonzero
+from random import choice, randint, random
+from r_blosum69 import B_GAP
+from functools import lru_cache, partial
 
-B_GAP = b'-'
+class AlignmentGenerator:
+    def realign_sequences(self, alignment, changes: int = 1):
+        sequences_count = len(alignment)
+        range_of_sequences_count = range(sequences_count)
 
-def msa_neighbor_add_remove(df, changes=1):
-    return df
-    # seq_count = len(df.index)
-    # if changes > seq_count:
-    #     changes = seq_count
+        new_alignment = alignment
 
-    # random_seq_indexes = set(choices(list(df.index), k=changes))
+        for _change_index in range(changes):
+            neighbor_alignment = new_alignment.copy()
 
-    # sequences_dictionary = { 'sequences': {}, 'max_length': None, 'min_length': None }
-
-    # dft = df.transpose()
-    # for index, row in dft.items():
-    #     values = dft[index]
-    #     sequence = ''.join([x for x in values])
-
-    #     if index in random_seq_indexes:
-    #         if random() < 0.5:
-    #             # Add a GAP
-    #             pos = randint(0, len(sequence) - 1)
-    #             new_sequence = sequence[:pos] + "-" + sequence[pos:]
-    #         else:
-    #             # Remove a GAP
-    #             gap_positions = [i.start() for i in re.finditer("-", sequence)]
-    #             if len(gap_positions) > 0:
-    #                 pos = choice(gap_positions)
-    #                 new_sequence = sequence[0:pos:] + sequence[pos + 1::]
-    #             else:
-    #                 # No GAPS to remove
-    #                 new_sequence = sequence
-
-    #         sequence = new_sequence
-
-    #     sequence_length = len(sequence)
-
-    #     sequences_dictionary['sequences'][index] = { 'sequence': sequence, 'count': sequence_length }
-    #     if sequences_dictionary['max_length'] == None or sequence_length > sequences_dictionary['max_length']:
-    #         sequences_dictionary['max_length'] = sequence_length
-    #     if sequences_dictionary['min_length'] == None or sequence_length < sequences_dictionary['min_length']:
-    #         sequences_dictionary['min_length'] = sequence_length
-
-    # neighbor = InputParser.build_dataframe(sequences_dictionary)
-
-    # return neighbor
-
-def add_gap(array, index_to_alter = 0, pos = 0):
-    row_list = []
-
-    for row_index, row in enumerate(array):
-        if row_index == index_to_alter:
-            row_list.extend([np.insert(row, pos, B_GAP)])
-        else:
-            l_trim = random() < 0.5
-            if l_trim:
-                row_list.extend([np.concatenate(([B_GAP], row))])
-            else:
-                row_list.extend([np.append(row, B_GAP)])
-
-    return np.array(row_list)
-
-
-def remove_gap(array, index_to_alter = 0, pos = 0):
-    row_list = []
-
-    for row_index, row in enumerate(array):
-        if row_index == index_to_alter:
-            new_row = np.delete(row, pos)
-
-            if random() < 0.5:
-                new_row = np.concatenate(([B_GAP], new_row))
-            else:
-                new_row = np.append(new_row, B_GAP)
-
-            row_list.extend([new_row])
-        else:
-            row_list.extend([row])
-
-    return np.array(row_list)
-
-
-def np_msa_neighbor_add_remove(np_array, changes: int = 1):
-    sequences_count = len(np_array)
-    range_of_sequences_count = range(sequences_count)
-
-    new_np_array = np_array
-
-    for _change_index in range(changes):
-        neighbor = new_np_array.copy()
-
-        while np.array_equal(new_np_array, neighbor):
-            should_add_gap = random() < 0.5
-
-            for _attempt in range(5):
+            while array_equal(new_alignment, neighbor_alignment):
                 random_seq_index = choice(range_of_sequences_count)
-                random_seq = neighbor[random_seq_index]
+                random_seq = neighbor_alignment[random_seq_index]
+                has_changed = False
 
-                if should_add_gap:
-                    break
+                if random() < 0.5:
+                    position_to_edit = randint(0, len(random_seq) - 1)
+                    modifier = partial(self.__modify_row_adding_gap, random_seq_index, position_to_edit)
+                    neighbor_alignment = self.__add_gap(neighbor_alignment, modifier)
+                    has_changed = True
                 else:
-                    gaps = np.where(random_seq[0] == B_GAP)[0]
+                    gaps = nonzero(random_seq == B_GAP)[0]
                     if len(gaps) > 0:
-                        break
+                        position_to_edit = choice(gaps)
+                        modifier = partial(self.__modify_row_removing_gap, random_seq_index, position_to_edit)
+                        neighbor_alignment = self.__remove_gap(neighbor_alignment, modifier)
+                        has_changed = True
 
-            if should_add_gap:
-                position_to_edit = randint(0, len(random_seq) - 1)
-                neighbor = add_gap(neighbor, random_seq_index, position_to_edit)
-            elif len(gaps) > 0:
-                position_to_edit = choice(gaps)
-                neighbor = remove_gap(neighbor, random_seq_index, position_to_edit)
+                if has_changed:
+                    neighbor_alignment = self.clean_alignment_gaps(tuple(neighbor_alignment.flatten()), neighbor_alignment.shape) # array([column for column in neighbor_alignment.T if not all(column == B_GAP)]).T
 
-            while np.all(neighbor[:, -1] == B_GAP):
-                neighbor = np.delete(neighbor, -1, 1)
+            new_alignment = neighbor_alignment
 
-            while np.all(neighbor[:, 0] == B_GAP):
-                neighbor = np.delete(neighbor, 0, 1)
+        return new_alignment
 
-        new_np_array = neighbor
+    @lru_cache(maxsize=None)
+    def clean_alignment_gaps(self, neighbor_alignment_as_tuple: tuple, original_shape: tuple):
+        neighbor_alignment = array(neighbor_alignment_as_tuple).reshape(original_shape)
 
-    return new_np_array
+        return array([column for column in neighbor_alignment.T if not all(column == B_GAP)]).T
+
+    def __add_gap(self, alignment, modifier):
+        row_list = [modifier(row_index, row) for row_index, row in enumerate(alignment)]
+
+        return array(row_list)
+
+    def __remove_gap(self, alignment, modifier):
+        row_list = [modifier(row_index, row) for row_index, row in enumerate(alignment)]
+
+        return array(row_list)
+
+    def __modify_row_adding_gap(self, index_to_alter, pos, row_index, row):
+        insert_position = pos if row_index == index_to_alter else 0 if random() < 0.5 else -1
+
+        return insert(row, insert_position, B_GAP)
+
+    def __modify_row_removing_gap(self, index_to_alter, pos, row_index, row):
+        if row_index == index_to_alter:
+            insert_position = 0 if random() < 0.5 else -1
+
+            return insert(delete(row, pos), insert_position, B_GAP)
+        else:
+            return row

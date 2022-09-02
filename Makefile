@@ -127,4 +127,14 @@ build-sif-baliscore:
 
 # NextFlow
 run-workflow:
-	nextflow -log ./workflows/nextflow.log run ./workflows/workflow.nf -c ./workflows/nextflow.conf --cores 12 -with-trace
+
+	nextflow -log ./workflows/nextflow.log \
+		run ./workflows/workflow.nf \
+		-c ./workflows/nextflow.conf \
+		--cores 12 \
+		-with-trace \
+		-with-report ./workflows/results/$(shell basename $(INPUT_SEQUENCES)).html \
+		--sequences ${INPUT_SEQUENCES}.tfa \
+		--reference ${INPUT_SEQUENCES}.msf \
+		--referenceXml ${INPUT_SEQUENCES}.xml \
+		--iterations ${ITERATIONS}
