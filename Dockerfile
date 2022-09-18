@@ -38,14 +38,14 @@ RUN apt-get --yes -qq update \
         libffi-dev \
         libsqlite3-dev \
         libbz2-dev \
-        patchelf
-    #     # ccache \
+        patchelf \
+        ccache
     #     # time \
     # && apt-get --yes -qq clean \
     # && rm -rf /var/lib/apt/lists/*
 
-# RUN /usr/sbin/update-ccache-symlinks
-# RUN export PATH="/usr/lib/ccache:$PATH"
+RUN /usr/sbin/update-ccache-symlinks
+RUN export PATH="/usr/lib/ccache:$PATH"
 
 WORKDIR /tmp/python-installation
 RUN wget https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tgz && tar -xf Python-3.10.6.tgz
@@ -63,20 +63,20 @@ RUN python3.10 -m pip install --no-input -r /software/msasa/requirements.txt
 
 COPY ./src /software/msasa/src
 
-# RUN python3.10 -m pip install ordered-set nuitka
-# RUN python3.10 -m pip install pyqt5
-# RUN python3.10 -m nuitka \
-#     --static-libpython=yes \
-#     --follow-imports \
-#     --plugin-enable=numpy \
-#     --plugin-enable=pyqt5 \
-#     --assume-yes-for-downloads \
-#     --standalone \
-#     --lto=no \
-#     --show-progress \
-#     --show-memory \
-#     --jobs=12 \
-#     --show-modules src/msa.py
+RUN python3.10 -m pip install ordered-set nuitka
+RUN python3.10 -m pip install pyqt5
+RUN python3.10 -m nuitka \
+    --static-libpython=yes \
+    --follow-imports \
+    --plugin-enable=numpy \
+    --plugin-enable=pyqt5 \
+    --assume-yes-for-downloads \
+    --standalone \
+    --lto=no \
+    --show-progress \
+    --show-memory \
+    --jobs=12 \
+    --show-modules src/msa.py
 
-# ENTRYPOINT [ "/software/msasa/msa.dist/msa" ]
-ENTRYPOINT [ "python3.10", "/software/msasa/src/msa.py" ]
+ENTRYPOINT [ "/software/msasa/msa.dist/msa" ]
+# ENTRYPOINT [ "python3.10", "/software/msasa/src/msa.py" ]
