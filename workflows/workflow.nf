@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 params.sequences = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.tfa'
 params.reference = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.msf'
 params.referenceXml = '/home/adrian/workspace/msasa/database/bb3_release/RV12/BB12001.xml'
-params.executions = 30
+params.iterations = 30
 
 process runClustalOmega {
     publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
@@ -90,7 +90,7 @@ process runTCoffee {
 
 process runMSASA {
     publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
-    cpus 12
+    cpus 4
 
     input:
         tuple val(executionId), path(sequences)
@@ -112,7 +112,7 @@ process runMSASA {
 
 process runMSASABlosum {
     publishDir "$baseDir/results/$sequences.simpleName", mode: 'copy'
-    cpus 12
+    cpus 4
 
     input:
         tuple val(executionId), path(sequences)

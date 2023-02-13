@@ -10,6 +10,9 @@ work/*
 .nextflow.log*
 workflows/results/*
 workflows/nextflow.log*
+workflows/.nextflow/*
+workflows/tesis_results/*
+workflows/work/*
 
 docker/*.sif
 docker/*.def
