@@ -1,11 +1,29 @@
 params.referenceXml = ""
 reference = file(params.referenceXml)
 
-process computeBaliScore {
-    tag "${predictorName} - ${alignment}"
-
+process computeCoreIndex {
+    tag "${alignment.simpleName}"
     publishDir "$baseDir/tesis_results/${reference.simpleName}", mode: 'copy'
+    errorStrategy 'ignore'
+    
+    input:
+        val predictorName
+        path alignment
 
+    output:
+        path "${reference.simpleName}_coreindex_${predictorName}.txt"
+
+    script:
+    """
+    t_coffee -infile=$alignment -output=score_ascii -score -outfile=${reference.simpleName}_coreindex_${predictorName}.txt
+    """
+}
+
+process computeBaliScore {
+    tag "${alignment.simpleName}"
+    publishDir "$baseDir/tesis_results/${reference.simpleName}", mode: 'copy'
+    errorStrategy 'ignore'
+    
     input:
         val predictorName
         path alignment

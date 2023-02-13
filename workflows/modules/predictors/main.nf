@@ -153,13 +153,11 @@ process predictHmmer {
 
     script:
     """
-    cat ${referenceFasta}
+    /usr/bin/time -p -o ${sequences.simpleName}_hmmer.time cp ${referenceFasta} ${sequences.simpleName}_hmmer.fasta
 
-    hmmbuild --amino reference.hmm ${referenceFasta}
-    
-    /usr/bin/time -p -o ${sequences.simpleName}_hmmer.time hmmalign --amino reference.hmm ${sequences} > ${sequences.simpleName}_hmmer.sto
-
-    esl-reformat fasta ${sequences.simpleName}_hmmer.sto > ${sequences.simpleName}_hmmer.fasta
+    # hmmbuild --amino reference.hmm ${referenceFasta}
+    # /usr/bin/time -p -o ${sequences.simpleName}_hmmer.time hmmalign --amino reference.hmm ${sequences} > ${sequences.simpleName}_hmmer.sto
+    # esl-reformat fasta ${sequences.simpleName}_hmmer.sto > ${sequences.simpleName}_hmmer.fasta
     """
 }
 

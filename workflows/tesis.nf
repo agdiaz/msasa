@@ -4,7 +4,7 @@ params.tfaFile = ""
 params.reference = ""
 params.referenceXml = ""
 
-params.iterations = 5
+params.iterations = 30
 
 targetFile = file(params.tfaFile)
 referenceFile = file(params.reference)
@@ -23,6 +23,7 @@ include {
 } from "./modules/predictors/main.nf"
 
 include {
+    computeBaliScore as computeBaliScoreReference;
     computeBaliScore as computeBaliScoreMuscle;
     computeBaliScore as computeBaliScoreClustal;
     computeBaliScore as computeBaliScoreMafft;
@@ -32,6 +33,18 @@ include {
     computeBaliScore as computeBaliScoreMsasaSingleMS;
     computeBaliScore as computeBaliScoreMsasaBlosum;
     computeBaliScore as computeBaliScoreMsasaSingleMatching;
+
+    computeCoreIndex as computeCoreIndexReference;
+    computeCoreIndex as computeCoreIndexMuscle;
+    computeCoreIndex as computeCoreIndexClustal;
+    computeCoreIndex as computeCoreIndexMafft;
+    computeCoreIndex as computeCoreIndexTCoffee;
+    computeCoreIndex as computeCoreIndexHmmer;
+    computeCoreIndex as computeCoreIndexKalign;
+    computeCoreIndex as computeCoreIndexMsasaSingleMS;
+    computeCoreIndex as computeCoreIndexMsasaBlosum;
+    computeCoreIndex as computeCoreIndexMsasaSingleMatching;;
+
     computeMumsaOverlapScore;
     exportAlignments;
 } from "./modules/analysis/main.nf"
@@ -128,6 +141,7 @@ workflow analysisWorkflow {
         msasaSingleMatchingAlignment
 
     main:
+        computeBaliScoreReference("reference", referenceFasta)
         computeBaliScoreMuscle("muscle", muscleAlignment)
         computeBaliScoreClustal("clustalo", clustalAlignment)
         computeBaliScoreMafft("mafft", mafftAlignment)
@@ -137,6 +151,17 @@ workflow analysisWorkflow {
         computeBaliScoreMsasaSingleMS("msasa_singlems", msasaSingleMsAlignment)
         computeBaliScoreMsasaBlosum("msasa_blosum", msasaBlosumAlignment)
         computeBaliScoreMsasaSingleMatching("msasa_singlematching", msasaSingleMatchingAlignment)
+
+        computeCoreIndexReference("reference", referenceFasta)
+        computeCoreIndexMuscle("muscle", muscleAlignment)
+        computeCoreIndexClustal("clustalo", clustalAlignment)
+        computeCoreIndexMafft("mafft", mafftAlignment)
+        computeCoreIndexTCoffee("tcoffee", tCoffeeAlignment)
+        // computeCoreIndexHmmer("hmmer", hmmerAlignment)
+        computeCoreIndexKalign("kalign", kalignAlignment)
+        computeCoreIndexMsasaSingleMS("msasa_singlems", msasaSingleMsAlignment)
+        computeCoreIndexMsasaBlosum("msasa_blosum", msasaBlosumAlignment)
+        computeCoreIndexMsasaSingleMatching("msasa_singlematching", msasaSingleMatchingAlignment)
 
         computeMumsaOverlapScore(
             referenceFasta,
@@ -150,7 +175,7 @@ workflow analysisWorkflow {
             msasaBlosumAlignment,
             msasaSingleMatchingAlignment
         )
-
+        
         exportAlignments(
             muscleAlignment,
             clustalAlignment,
