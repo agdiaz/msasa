@@ -9,10 +9,10 @@ process predictMuscle {
     path "*_muscle.fasta", emit: alignment
     path "*_muscle.time",  emit: timing
 
-
     script:
     """
-    /usr/bin/time -p -o ${sequences.simpleName}_${iteration}_muscle.time /software/muscle -align ${sequences} -amino -output ${sequences.simpleName}_${iteration}_muscle.fasta
+    /usr/bin/time -p -o ${sequences.simpleName}_muscle.time /software/muscle -align ${sequences} -amino -output output.fasta
+    fold -w 60 output.fasta > ${sequences.simpleName}_muscle.fasta
     """ 
 }
 
@@ -101,7 +101,7 @@ process predictClustalOmega {
     script:
     """
     #!/bin/bash
-    /usr/bin/time -p -o ${sequences.simpleName}_${iteration}_clustalo.time /software/clustalo --force -i ${sequences} -o ${sequences.simpleName}_${iteration}_clustalo.fasta
+    /usr/bin/time -p -o ${sequences.simpleName}_clustalo.time /software/clustalo --force -i ${sequences} -o ${sequences.simpleName}_clustalo.fasta
     """ 
 }
 
@@ -119,7 +119,7 @@ process predictMafft {
     """
     #!/bin/bash
     
-    /usr/bin/time -p -o ${sequences.simpleName}_${iteration}_mafft.time /usr/local/bin/mafft --auto ${sequences} > ${sequences.simpleName}_${iteration}_mafft.fasta
+    /usr/bin/time -p -o ${sequences.simpleName}_mafft.time /usr/local/bin/mafft --auto ${sequences} > ${sequences.simpleName}_mafft.fasta
     """ 
 }
 
@@ -136,7 +136,7 @@ process predictTCoffee {
     script:
     """
     t_coffee -seq ${sequences}
-    /usr/bin/time -p --output=${sequences.simpleName}_${iteration}_tcoffee.time t_coffee -other_pg seq_reformat -in ${sequences.simpleName}.aln -output fasta_aln > ${sequences.simpleName}_${iteration}_tcoffee.fasta
+    /usr/bin/time -p --output=${sequences.simpleName}_tcoffee.time t_coffee -other_pg seq_reformat -in ${sequences.simpleName}.aln -output fasta_aln > ${sequences.simpleName}_tcoffee.fasta
     """
 }
 
@@ -155,11 +155,11 @@ process predictHmmer {
     """
     cat ${referenceFasta}
 
-    hmmbuild --amino reference_${iteration}.hmm ${referenceFasta}
+    hmmbuild --amino reference.hmm ${referenceFasta}
     
-    /usr/bin/time -p -o ${sequences.simpleName}_${iteration}_hmmer.time hmmalign --amino reference_${iteration}.hmm ${sequences} > ${sequences.simpleName}_${iteration}_hmmer.sto
+    /usr/bin/time -p -o ${sequences.simpleName}_hmmer.time hmmalign --amino reference.hmm ${sequences} > ${sequences.simpleName}_hmmer.sto
 
-    esl-reformat fasta ${sequences.simpleName}_${iteration}_hmmer.sto > ${sequences.simpleName}_${iteration}_hmmer.fasta
+    esl-reformat fasta ${sequences.simpleName}_hmmer.sto > ${sequences.simpleName}_hmmer.fasta
     """
 }
 
@@ -176,6 +176,69 @@ process predictKAlign {
     script:
     """
     #!/bin/bash
-    /usr/bin/time -p -o ${sequences.simpleName}_${iteration}_kalign.time /software/kalign -input ${sequences} -output ${sequences.simpleName}_${iteration}_kalign.fasta -format fasta -quiet
+    /usr/bin/time -p -o ${sequences.simpleName}_kalign.time /software/kalign -input ${sequences} -output ${sequences.simpleName}_kalign.fasta -format fasta -quiet
+    """
+}
+
+process predictMsasaSingleMs {
+    input:
+    tuple val(iteration), path(sequences)
+
+    output:
+    path "*_msasa_singlems.fasta", emit: alignment
+    path "*_msasa_singlems.time",  emit: timing
+
+    script:
+    """
+    /usr/local/bin/python /usr/src/app/src/msa.py --input ${sequences} \
+        --output output.fasta \
+        --comparer single_ms \
+        --n-iterations 100 \
+        --temperature 10 \
+        --execution-id 1 > ${sequences.simpleName}_msasa_singlems.time
+    
+    fold -w 60 output.fasta > ${sequences.simpleName}_msasa_singlems.fasta
+    """
+}
+
+process predictMsasaBlosum {
+    input:
+    tuple val(iteration), path(sequences)
+
+    output:
+    path "*_msasa_singleblosum.fasta", emit: alignment
+    path "*_msasa_singleblosum.time",  emit: timing
+
+    script:
+    """
+    /usr/local/bin/python /usr/src/app/src/msa.py --input ${sequences} \
+        --output output.fasta \
+        --comparer single_blosum \
+        --n-iterations 100 \
+        --temperature 20 \
+        --execution-id 1 > ${sequences.simpleName}_msasa_singleblosum.time
+    
+    fold -w 60 output.fasta > ${sequences.simpleName}_msasa_singleblosum.fasta
+    """
+}
+
+process predictMsasaSingleMatching {
+    input:
+    tuple val(iteration), path(sequences)
+
+    output:
+    path "*_msasa_singlematching.fasta", emit: alignment
+    path "*_msasa_singlematching.time",  emit: timing
+
+    script:
+    """
+    /usr/local/bin/python /usr/src/app/src/msa.py --input ${sequences} \
+        --output output.fasta \
+        --comparer single_matching \
+        --n-iterations 100 \
+        --temperature 20 \
+        --execution-id 1 > ${sequences.simpleName}_msasa_singlematching.time
+    
+    fold -w 60 output.fasta > ${sequences.simpleName}_msasa_singlematching.fasta
     """
 }

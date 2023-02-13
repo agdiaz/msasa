@@ -1,4 +1,7 @@
 output
+.vscode
+
+database
 
 msa.bin
 msa.bin/
@@ -13,6 +16,7 @@ workflows/nextflow.log*
 workflows/.nextflow/*
 workflows/tesis_results/*
 workflows/work/*
+workflows/work*
 
 docker/*.sif
 docker/*.def

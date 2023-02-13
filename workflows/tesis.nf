@@ -16,7 +16,10 @@ include {
     predictTCoffee;
     predictHmmer;
     predictKAlign;
+    predictMsasaSingleMs;
+    predictMsasaBlosum;
     sortPredictedAlignment;
+    predictMsasaSingleMatching;
 } from "./modules/predictors/main.nf"
 
 include {
@@ -26,6 +29,9 @@ include {
     computeBaliScore as computeBaliScoreTCoffee;
     computeBaliScore as computeBaliScoreHmmer;
     computeBaliScore as computeBaliScoreKalign;
+    computeBaliScore as computeBaliScoreMsasaSingleMS;
+    computeBaliScore as computeBaliScoreMsasaBlosum;
+    computeBaliScore as computeBaliScoreMsasaSingleMatching;
     computeMumsaOverlapScore;
     exportAlignments;
 } from "./modules/analysis/main.nf"
@@ -75,6 +81,9 @@ workflow predictionWorkflow {
         predictTCoffee(tupleIterationTargetFile)
         predictHmmer(tupleIterationTargetFile, referenceFasta)
         predictKAlign(tupleIterationTargetFile)
+        predictMsasaSingleMs(tupleIterationTargetFile)
+        predictMsasaBlosum(tupleIterationTargetFile)
+        predictMsasaSingleMatching(tupleIterationTargetFile)
 
     emit:
         muscleAlignment  = sortPredictedAlignment.out.alignment
@@ -94,6 +103,15 @@ workflow predictionWorkflow {
 
         kalignAlignment  = predictKAlign.out.alignment
         kalignTiming     = predictKAlign.out.timing
+
+        msasaSingleMsAlignment = predictMsasaSingleMs.out.alignment
+        msasaSingleMsTiming    = predictMsasaSingleMs.out.timing
+
+        msasaBlosumAlignment = predictMsasaBlosum.out.alignment
+        msasaBlosumTiming    = predictMsasaBlosum.out.timing
+
+        msasaSingleMatchingAlignment = predictMsasaSingleMatching.out.alignment
+        msasaSingleMatchingTiming    = predictMsasaSingleMatching.out.timing
 }
 
 workflow analysisWorkflow {
@@ -105,14 +123,20 @@ workflow analysisWorkflow {
         tCoffeeAlignment
         hmmerAlignment
         kalignAlignment
+        msasaSingleMsAlignment
+        msasaBlosumAlignment
+        msasaSingleMatchingAlignment
 
     main:
-        computeBaliScoreMuscle(muscleAlignment)
-        computeBaliScoreClustal(clustalAlignment)
-        computeBaliScoreMafft(mafftAlignment)
-        computeBaliScoreTCoffee(tCoffeeAlignment)
-        computeBaliScoreHmmer(hmmerAlignment)
-        computeBaliScoreKalign(kalignAlignment)
+        computeBaliScoreMuscle("muscle", muscleAlignment)
+        computeBaliScoreClustal("clustalo", clustalAlignment)
+        computeBaliScoreMafft("mafft", mafftAlignment)
+        computeBaliScoreTCoffee("tcoffee", tCoffeeAlignment)
+        computeBaliScoreHmmer("hmmer", hmmerAlignment)
+        computeBaliScoreKalign("kalign", kalignAlignment)
+        computeBaliScoreMsasaSingleMS("msasa_singlems", msasaSingleMsAlignment)
+        computeBaliScoreMsasaBlosum("msasa_blosum", msasaBlosumAlignment)
+        computeBaliScoreMsasaSingleMatching("msasa_singlematching", msasaSingleMatchingAlignment)
 
         computeMumsaOverlapScore(
             referenceFasta,
@@ -121,7 +145,10 @@ workflow analysisWorkflow {
             mafftAlignment,
             tCoffeeAlignment,
             hmmerAlignment,
-            kalignAlignment
+            kalignAlignment,
+            msasaSingleMsAlignment,
+            msasaBlosumAlignment,
+            msasaSingleMatchingAlignment
         )
 
         exportAlignments(
@@ -130,16 +157,11 @@ workflow analysisWorkflow {
             mafftAlignment,
             tCoffeeAlignment,
             hmmerAlignment,
-            kalignAlignment
+            kalignAlignment,
+            msasaSingleMsAlignment,
+            msasaBlosumAlignment,
+            msasaSingleMatchingAlignment
         )
-
-    emit:
-        muscleBaliscore  = computeBaliScoreMuscle.out.score
-        clustalBaliscore = computeBaliScoreClustal.out.score
-        mafftBaliscore   = computeBaliScoreMafft.out.score
-        tCoffeeBaliscore = computeBaliScoreTCoffee.out.score
-        hmmerBaliscore   = computeBaliScoreHmmer.out.score
-        kalignBaliscore  = computeBaliScoreKalign.out.score
 }
 
 workflow {
@@ -156,6 +178,9 @@ workflow {
     tCoffeeAlignmentSample = predictionWorkflow.out.tCoffeeAlignment.randomSample(1, 4567)
     hmmerAlignmentSample   = predictionWorkflow.out.hmmerAlignment.randomSample(1, 5678)
     kalignAlignmentSample  = predictionWorkflow.out.kalignAlignment.randomSample(1, 6789)
+    msasaSingleMsAlignmentSample  = predictionWorkflow.out.msasaSingleMsAlignment.randomSample(1, 7890)
+    msasaBlosumAlignmentSample  = predictionWorkflow.out.msasaBlosumAlignment.randomSample(1, 8901)
+    msasaSingleMatchingAlignmentSample  = predictionWorkflow.out.msasaSingleMatchingAlignment.randomSample(1, 9012)
 
     analysisWorkflow(
         preProcessing.out.referenceDashesFasta,
@@ -164,6 +189,9 @@ workflow {
         mafftAlignmentSample,
         tCoffeeAlignmentSample,
         hmmerAlignmentSample,
-        kalignAlignmentSample
+        kalignAlignmentSample,
+        msasaSingleMsAlignmentSample,
+        msasaBlosumAlignmentSample,
+        msasaSingleMatchingAlignmentSample
     )
 }
