@@ -179,6 +179,8 @@ process predictKAlign {
 }
 
 process predictMsasaSingleMs {
+    errorStrategy 'ignore'
+
     input:
     tuple val(iteration), path(sequences)
 
@@ -200,6 +202,8 @@ process predictMsasaSingleMs {
 }
 
 process predictMsasaBlosum {
+    errorStrategy 'ignore'
+    
     input:
     tuple val(iteration), path(sequences)
 
@@ -221,6 +225,8 @@ process predictMsasaBlosum {
 }
 
 process predictMsasaSingleMatching {
+    errorStrategy 'ignore'
+
     input:
     tuple val(iteration), path(sequences)
 

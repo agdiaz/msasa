@@ -1,0 +1,10 @@
+Input Alignment:                    	Overlap Score:
+B40014_ref_dashes.fasta          	1.00
+B40014_tcoffee.fasta             	0.64
+B40014_clustalo.fasta            	0.64
+B40014_muscle_sorted.fasta       	0.63
+B40014_mafft.fasta               	0.63
+B40014_kalign.fasta              	0.61
+B40014_msasa_singlems.fasta      	0.04
+B40014_msasa_singlematching.fasta	0.04
+B40014_msasa_singleblosum.fasta  	0.02
