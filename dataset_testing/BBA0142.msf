@@ -1,0 +1,68 @@
+!!AA_MULTIPLE_ALIGNMENT 1.0
+
+  stdout MSF:  83 Type: P 13/02/23 CompCheck: 9769 ..
+
+  Name: seq001     Len: 83  Check: 9017 Weight: 1.00
+  Name: seq002     Len: 83  Check:  253 Weight: 1.00
+  Name: seq003     Len: 83  Check: 8906 Weight: 1.00
+  Name: seq004     Len: 83  Check: 1731 Weight: 1.00
+  Name: seq005     Len: 83  Check: 4222 Weight: 1.00
+  Name: seq006     Len: 83  Check: 7928 Weight: 1.00
+  Name: seq007     Len: 83  Check: 7598 Weight: 1.00
+  Name: seq008     Len: 83  Check:  661 Weight: 1.00
+  Name: seq009     Len: 83  Check: 1648 Weight: 1.00
+  Name: seq010     Len: 83  Check: 2457 Weight: 1.00
+  Name: seq011     Len: 83  Check: 7335 Weight: 1.00
+  Name: seq012     Len: 83  Check: 7571 Weight: 1.00
+  Name: seq013     Len: 83  Check: 7619 Weight: 1.00
+  Name: seq014     Len: 83  Check: 8114 Weight: 1.00
+  Name: seq015     Len: 83  Check: 4735 Weight: 1.00
+  Name: seq016     Len: 83  Check: 9542 Weight: 1.00
+  Name: seq017     Len: 83  Check: 1558 Weight: 1.00
+  Name: seq018     Len: 83  Check: 3998 Weight: 1.00
+  Name: seq019     Len: 83  Check: 4876 Weight: 1.00
+
+//
+
+           1                                               50
+seq001     mvtaikgv.lvkcdeptmqiilmlneek.....n.fliekisdtvclcke
+seq002     mtrarkgt.lvqcdpsiralilrmdadr....nd.iiyeelddthllvdp
+seq003     mvrarrgv.llkcdpsikalivqidser....hd.iileeldethllvhp
+seq004     mprarkga.lvqcdpsiralilqidsgt....hd.iiweeldethllvdp
+seq005     mpsaikgv.mvqcdpsikalilkidser....hd.ivieeldethlvidl
+seq006     mpkatrgv.liecdpsikalivnidssq....hn.iildelddthlmihp
+seq007     mpraqkglllvecdptvkqlilnmdeqs....pg.ivieeideerllvne
+seq008     mprairgv.liqcepaiksiivhldsvn....nd.iiiedldeqtlvvke
+seq009     mararkga.lvqcdpsikalilqidakm....sd.ivleelddthllvnp
+seq010     mpraikgv.liecdpsvkaiilkydees....hd.yivedldddrhlvik
+seq011     mvnvlkgv.liecdpamkqfllyldes.nalgkk.fiiqdiddthvfvia
+seq012     mvnvlkgv.liecdpamkqfllyldea.nalgkk.fiiqdiddthvfvia
+seq013     mvnvlkgv.liecdpamkqfllyldes.nalgkk.fiiqdldethvfvla
+seq014     mvnvlkgv.lvecdpamkqfllyldet.salgkk.fiiqdlddthvfila
+seq015     mvsakkgl.llrcdvptkvyivhmnsqyraegkkefiiadldettllinp
+seq016     mvnaikgl.fiscdvpmaqfivnlnas.mpasdk.filhmldpthmfvqp
+seq017     mvnaikgv.fvscdipmtqfivnmnns.mppsqk.fiihvldsthlfvqp
+seq018     mvnvkkgv.lvtsdpafrqllihlddsr.qlgsk.fivrelddthlfiek
+seq019     mvnvkkgv.lvtsdpafrqllihlddsr.qlgsk.fivrelddthlfiek
+
+           51                             83
+seq001     nvhdflekevik....qleyserheted~~~~~
+seq002     skvefikyelnrlls.eniynpldeeena~~~~
+seq003     tkvefikmelnrlls.kniynpldeeeeeh~~~
+seq004     akvsyikeklnwfls.kniynpseeeenp~~~~
+seq005     nkvqavknelnrlls.kniynpfdeq~~~~~~~
+seq006     smvevvkqklnkmla.entynpneeaakatgk~
+seq007     srleqvkaelerrle.entyqvee~~~~~~~~~
+seq008     nmvqllkqkledrl..ketyrpeepladsd~~~
+seq009     skvefvkhelnrlls.kniynpmdeeenq~~~~
+seq010     esqlqnlkerlgreldekvmqpeesese~~~~~
+seq011     elvnvlqervgelmd.qnafsltqkx~~~~~~~
+seq012     elvnvlqervgelmd.qnafsltqk~~~~~~~~
+seq013     elvnflqervgelmd.qnsfpitqk~~~~~~~~
+seq014     evvqilqervgelmd.qnsfpitqk~~~~~~~~
+seq015     ayeleiraalkkysd.eltfepeklqpgqq~~~
+seq016     hvaemirskisefrd.qnsyekpt~~~~~~~~~
+seq017     hveqmirsaisdfrd.qnsyekpts~~~~~~~~
+seq018     divpmleskveqime...nmnpetndnk~~~~~
+seq019     eivpmlenkveqime...nmnpeavdk~~~~~~
+

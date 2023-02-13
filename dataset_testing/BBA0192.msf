@@ -1,0 +1,119 @@
+!!AA_MULTIPLE_ALIGNMENT 1.0
+
+  stdout MSF:  882 Type: P 13/02/23 CompCheck: 8769 ..
+
+  Name: seq001     Len: 882  Check: 1773 Weight: 1.00
+  Name: seq002     Len: 882  Check:  650 Weight: 1.00
+  Name: seq003     Len: 882  Check: 1752 Weight: 1.00
+  Name: seq004     Len: 882  Check: 4594 Weight: 1.00
+
+//
+
+           1                                               50
+seq001     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+seq002     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ms
+seq003     maalaeeqtevavklepegpptllppqagdgagegsggttnngpnggggn
+seq004     ~~~~~~~~~~~~~~~~~~~~~~~~~msqkqstnqnqngthqpqpvknqrt
+
+           51                                             100
+seq001     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+seq002     levsninggng..........................tqlshdkrellcl
+seq003     vaassstggdggtpkptvavsaaapagaapvpaaapdagaphdrqtllav
+seq004     nnaagansgqqp...........qqqsqgqsqqqgrsngpfsasdlnriv
+
+           101                                            150
+seq001     mkrvrteqiqmavscylkrrqyvdsdgp................lkqglr
+seq002     lklikkyqlksteellcqeanvssvels...eisesdvq..qvlgavlga
+seq003     lqflrqsklreaeealrreaglleetvagagapgevdsagaevtsallsr
+seq004     leylnkkgyhrteamlraesgrtltpqn...kqspantktgkfpeqssip
+
+           151                                            200
+seq001     lsqtaeemaanlt.vqsesgcanivsaapcqaep................
+seq002     gdanrerkhvqsp.aqghkqsavteanaaeelak......fiddd.....
+seq003     vtasapgpaapdppgtgasgatvvsgsasgpaapgkvgsvavedqpdvsa
+seq004     pnpgktakpisnptnlsskrdaeggivssgrleg................
+
+           201                                            250
+seq001     ......qq.....yevqfgrlrnfltdsdsqhshevmpllyplfvylhln
+seq002     ...sfdaq....hyeqaykelrtfvedsldiykhelsmvlypilvqiyfk
+seq003     vlsaynqqgdptmyeeyysglkhfiecsldchraelsqlfyplfvhmyle
+seq004     ....lnap...enyiraysmlknwvdssleiykpelsyimypifiylfln
+
+           251                                            300
+seq001     lvqnspkstvesfysrfhgmflqnasqkdvieqlqttqtiqdilsnfklr
+seq002     ilasglrekakefiekykc..dldgyyieglfnllllskpeellendlvv
+seq003     lvynqheneaksffekfhg..dqecyyqddlrvlssltkkehmkgnetml
+seq004     lvaknp.vyarrffdrfsp..dfkdfhgseinrlfsvnsidhikenevas
+
+           301                                            350
+seq001     afldnkyvvrlqedsynylirylqsdn...ntalckvltlhihldvqp..
+seq002     ameqdkfvirmsrdshslfkrhiqdrr...qevvadivskylhfdtyeg.
+seq003     dlrtskfvlrisrdsyqllkrhlqekq...nnqiwnivqehlyidifdg.
+seq004     afqshkyritmskttlnlllyflnenesiggsliisvinqhldpnivesv
+
+           351                                            400
+seq001     akrtdyqlyas.........gsssrsenng....................
+seq002     marnklqcvatagshl....geakrqdnkmrvyyg.......llkevdfq
+seq003     mprskqqidamvgsla....geakreankskvffg.......llkepeie
+seq004     tarekladgikvlsdsengngkqnlemnsvpvklgpfpkdeefvkeiete
+
+           401                                            450
+seq001     ..................................................
+seq002     tlttpa.....................................papeeed
+seq003     v..........................................plddede
+seq004     lkikddqekqlnqqtagdnysgannrtllqeykamnnekfkdntgdddkd
+
+           451                                            500
+seq001     ..............................leppdmpspilqn...eaal
+seq002     ddpdapdrpkkkkpkkdpllskksksdpnapsidriplpelkdsdkllkl
+seq003     egeneegkpkkkkpkkdsigskskkqdpnappqnriplpelkdsdkldki
+seq004     kikdkiakdeekkeselkvdgekkdsnlsspardilplppktaldlklei
+
+           501                                            550
+seq001     evlqesikrvkdg..ppsltticfyafynteqllntaeispdskllaagf
+seq002     kalreaskrlals..kdqlpsavfytvlnshqgvtcaeisddstmlacgf
+seq003     mnmkettkrvrlg..sdclpsicfytflnvyqgltavdvtddssliaggf
+seq004     qkvkesrdaikldnlqlalpsvcmytfqntnkdmscldfsddcriaaagf
+
+           551                                            600
+seq001     dnsciklwslrskklksephqvdvsrihlacdileeeddeddnagtemki
+seq002     gdssvriwsltpaklrtlkdadslreldkesadinvr.mlddrsgevtrs
+seq003     adstvrvwsvtpkklrsvkqasdlslidkesddvler.imdektaselki
+seq004     qdsyikiwsldgsslnnpnialnn...............ndkdedptckt
+
+           601                                            650
+seq001     lrghcgpvystrfladssgllscsedmsirywdlgsftntvlyqghaypv
+seq002     lmghtgpvyrcafapemnlllscsedstirlwslltwscvvtyrghvypv
+seq003     lyghsgpvygasfspdrnyllsssedgtvrlwslqtftclvgykghnypv
+seq004     lvghsgtvystsfspdnkyllsgsedktvrlwsmdthtalvsykghnhpv
+
+           651                                            700
+seq001     wdldispyslyfasgshdrtarlwsfdrtyplriyaghladvdcvkfhpn
+seq002     wdvrfaphgyyfvscsydktarlwatdsnqalrvfvghlsdvdcvqfhpn
+seq003     wdtqfspygyyfvsgghdrvarlwatdhyqplrifaghladvnctrfhpn
+seq004     wdvsfsplghyfatashdqtarlwscdhiyplrifaghlndvdcvsfhpn
+
+           701                                            750
+seq001     snylatgstdktvrlwsaqqgnsvrlftghrgpvlslafspngkylasag
+seq002     snyvatgssdrtvrlwdnmtgqsvrlmtghkgsvsslafsacgrylasgs
+seq003     snyvatgsadrtvrlwdvlngncvriftghkgpihsltfspngrflatga
+seq004     gcyvftgssdktcrmwdvstgdsvrlflghtapvisiavcpdgrwlstgs
+
+           751                                            800
+seq001     edqrlklwdlasgtlykelrgh.tdnitsltfspdsgliasasmdnsvrv
+seq002     vdhniiiwdlsngslvttllrh.tstvttitfsrdgtvlaaagldnnltl
+seq003     tdgrvllwdighglmvgelkgh.tdtvcslrfsrdgeilasgsmdntvrl
+seq004     edgiinvwdigtgkrlkqmrghgknaiyslsyskegnvlisggadhtvrv
+
+           801                                            850
+seq001     wdirntycs...apadgsssel.............vg.............
+seq002     wdfhkvted...yisnhitvsh.hq..dendedvylmr............
+seq003     wdaikafed...letddfttatghinlpensqelllg.............
+seq004     wdlkkattepsaepdepfigylgdvtasinqdikeygrrrtviptsdlva
+
+           851                          882
+seq001     vytgqmsnvlsvqfmacnlllvtgitqenqeh
+seq002     tfpsknspfvslhftrrnllmcvglfks~~~~
+seq003     tymtk.spvvhlhftrrnlvlaagayspq~~~
+seq004     sfytkktpvfkvkfsrsnlalaggafrp~~~~
+

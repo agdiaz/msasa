@@ -1,0 +1,110 @@
+!!AA_MULTIPLE_ALIGNMENT 1.0
+
+  stdout MSF:  171 Type: P 13/02/23 CompCheck: 4312 ..
+
+  Name: seq001     Len: 171  Check: 6122 Weight: 1.00
+  Name: seq002     Len: 171  Check: 5910 Weight: 1.00
+  Name: seq003     Len: 171  Check: 6169 Weight: 1.00
+  Name: seq004     Len: 171  Check: 6163 Weight: 1.00
+  Name: seq005     Len: 171  Check: 6359 Weight: 1.00
+  Name: seq006     Len: 171  Check: 6163 Weight: 1.00
+  Name: seq007     Len: 171  Check: 6163 Weight: 1.00
+  Name: seq008     Len: 171  Check: 6499 Weight: 1.00
+  Name: seq009     Len: 171  Check: 1282 Weight: 1.00
+  Name: seq010     Len: 171  Check: 9681 Weight: 1.00
+  Name: seq011     Len: 171  Check:  741 Weight: 1.00
+  Name: seq012     Len: 171  Check: 9026 Weight: 1.00
+  Name: seq013     Len: 171  Check: 4659 Weight: 1.00
+  Name: seq014     Len: 171  Check: 6372 Weight: 1.00
+  Name: seq015     Len: 171  Check: 9027 Weight: 1.00
+  Name: seq016     Len: 171  Check: 5239 Weight: 1.00
+  Name: seq017     Len: 171  Check: 2342 Weight: 1.00
+  Name: seq018     Len: 171  Check: 1924 Weight: 1.00
+  Name: seq019     Len: 171  Check: 4471 Weight: 1.00
+
+//
+
+           1                                               50
+seq001     ~~~~sahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq002     ~~~msahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq003     ~~~msahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq004     ~~~msahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq005     ~~~~sahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq006     ~~~msahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq007     ~~~msahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq008     ~~~~sahlqwmvvrncssflikrn.....kqtystepnnlkarnsfryng
+seq009     ~~~msahlqwmvirnnssflikrn.....gqtystepnnlkarnafrfng
+seq010     matvpgqliweivknnncflvkqfgrgnskvqfsketnnltnvhsykhsg
+seq011     matvpgqliweivkrnncflvkqfgrgnakvqfskesnnlvninsykhsg
+seq012     matipdslvwelvkknnsflvkqfgngnakvqfskepnnlynvhsykhsg
+seq013     ~msvsndliwqvirdnnrflvkrpef..ggiqfnrepvnvsgknaqrfsg
+seq014     ~matsshlnwliirnnnafllkkrdv...kkpfstepnnlasvssyrysg
+seq015     ~matsshlnwliirnnnafllkkrdv...kkpfstepnnlasvssyrysg
+seq016     ~~~msdalvwqvirnnsaflrtqrgi...gkrfstekfnlkkvnspkysg
+seq017     ~~~msshlnwmiirnnnaflvkkrni...kkpfskepnnvtnlnsyryng
+seq018     ~~~msqdlvwsiikknnaflkssh.....gltlsaepgnlrnknslkysg
+seq019     ~mthstdlqwllvrqnskflqkrn.....girlssdpfnnnanwtkrhag
+
+           51                                             100
+seq001     lihrktvgvepaadgk.gvvvvikrrsgqrkpatsyvrtti.nknaratl
+seq002     lihrktvgvepaadgk.gvvvvikrrsgqrkpatsyvrtti.nknaratl
+seq003     lihrktvgvepaadgk.gvvvvikrrsgqrkpatsyvrtti.nrnaratl
+seq004     lihrktvgvepaadgk.gvvvvmkrrsgqrkpatsyvrtti.nknaratl
+seq005     lihrktvgvepaadgk.gvvvvmkrrsgqrkpatsyvrtti.nknaratl
+seq006     lihrktvgvepaadgk.gvvvvmkrrsgqrkpatsyvrtti.nknaratl
+seq007     lihrktvgvepaadgk.gvvvvmkrrsgqrkpatsyvrtti.nknaratl
+seq008     lihrktvgveawpdgk.gvvvvmkrrsgqrkpatsyvrtti.nknaratl
+seq009     lihrktvgveqaadgk.gvviilkkraghrkpakayekiti.nknsrttl
+seq010     lankktvtiqaadkdq.avvlattktkkqnkpklsvnksil.kkefprms
+seq011     lankktvtiqaagkdq.gvvlgttktkrqnkpklsvnksil.kkefsrms
+seq012     lankktvtvqpasgketavvlsttktekqnkpaslyhksvm.rkefrkma
+seq013     lcndkavgvqansprg.vvlitktnpknaqkpaklfrkdvianassrkty
+seq014     ivhkktlgvvpaadkk.gftavlkkgkyaqrpakntvrvdf.kagprrsl
+seq015     ivhkktlgvvpaadkk.gftavlkkgkyaqrpakntvrvdf.kagprrsl
+seq016     lankhaidvsaaa..k.gvvvstknekg..rpakavttstl.sktpvasv
+seq017     liqkkavgvvenpdrk.gftvvykkakatnkpaknavrrqf.kagarrsl
+seq018     larrttidvaavng...kvvvsskivkkaafpaqskktttf.stvntrkt
+seq019     flntkaavvktkgd...rilvttkdgkagnkpksmykkavm.dagveasv
+
+           101                                            150
+seq001     ssirhmirknkyrpdlrmaairrasailrtqkpvmvkrkrtrptkss~~~
+seq002     ssirhmirknkyrpdlrmaairrasailrsqkpvmvkrkrtrptkss~~~
+seq003     ssirhmirknkyrpdlrmaairrasailrsqkpvmvkrkrtrptkss~~~
+seq004     ssirhmirknkyrpdlrmaairrasailrsqkpvvvkrkrtrptkss~~~
+seq005     ssirhmirknkyrpdlrmaairrasailrsqkpvvvkrkrtrptkss~~~
+seq006     ssirhmirknkyrpdlrmaairrasailrsqkpvvvkrkrtrptkss~~~
+seq007     ssirhmirknkyrpdlrmaairrasailrsqkpvvvkrkrtrptkss~~~
+seq008     ssirhmirknkyrpdlrmaairrasailrsqkpvvvkrkrtrptkss~~~
+seq009     nrlrniirknkyrkdlrmaalrrasailksqkpvvvkkkrsratksa~~~
+seq010     kavanqvvdnyyrpdlkkaalarlsaiskglrvaksgakqrnrqa~~~~~
+seq011     kvvanqvvdnyyrpdlkkaalarlsaiskglrvaksgpkrrnrqa~~~~~
+seq012     kavknqvsdnyyrpdltkpalarlsavyrslqvaksgvkkknrqan~~~~
+seq013     ksiagrigrtgyrddlvkvsvarasailssqrpkktva~~~~~~~~~~~~
+seq014     kklknlligskyrkdltqaalrrasavlrsqkpapvkgkkaefakgkkpe
+seq015     kklknlligskyrkdltqvimapslettvwvlvmmifflmlhnqdrrmiv
+seq016     rrlaknagfnkfnk....laqrraaaivrsqvkkakvqktda~~~~~~~~
+seq017     ykvkrllkanhyrtdlskatlrrasailrsqrpikakkpkaavakte~~~
+seq018     arfvktla.tqyapelraaalgrlhrvqsalrsakkaaarkakkn~~~~~
+seq019     vskavaav....rpdlasiasrrarkmastlehmkkvraarkersskitf
+
+           151               171
+seq001     ~~~~~~~~~~~~~~~~~~~~~
+seq002     ~~~~~~~~~~~~~~~~~~~~~
+seq003     ~~~~~~~~~~~~~~~~~~~~~
+seq004     ~~~~~~~~~~~~~~~~~~~~~
+seq005     ~~~~~~~~~~~~~~~~~~~~~
+seq006     ~~~~~~~~~~~~~~~~~~~~~
+seq007     ~~~~~~~~~~~~~~~~~~~~~
+seq008     ~~~~~~~~~~~~~~~~~~~~~
+seq009     ~~~~~~~~~~~~~~~~~~~~~
+seq010     ~~~~~~~~~~~~~~~~~~~~~
+seq011     ~~~~~~~~~~~~~~~~~~~~~
+seq012     ~~~~~~~~~~~~~~~~~~~~~
+seq013     ~~~~~~~~~~~~~~~~~~~~~
+seq014     ~~~~~~~~~~~~~~~~~~~~~
+seq015     linlsealkaeayrtsvlglf
+seq016     ~~~~~~~~~~~~~~~~~~~~~
+seq017     ~~~~~~~~~~~~~~~~~~~~~
+seq018     ~~~~~~~~~~~~~~~~~~~~~
+seq019     qrkavrpkrh~~~~~~~~~~~
+
