@@ -1,0 +1,185 @@
+!!AA_MULTIPLE_ALIGNMENT 1.0
+
+  BOX212_alignment_clustal.msf MSF:  817 Type: P 14/02/23 CompCheck: 3287 ..
+
+  Name: Q07011     Len: 817  Check: 8300 Weight: 1.00
+  Name: Q8C4K3     Len: 817  Check:  671 Weight: 1.00
+  Name: Q4S672     Len: 817  Check: 4732 Weight: 1.00
+  Name: O35305     Len: 817  Check: 4132 Weight: 1.00
+  Name: Q3UK82     Len: 817  Check: 3525 Weight: 1.00
+  Name: Q805B0     Len: 817  Check: 4444 Weight: 1.00
+  Name: Q60846     Len: 817  Check: 1835 Weight: 1.00
+  Name: Q1ECV9     Len: 817  Check: 5648 Weight: 1.00
+
+//
+
+           1                                               50
+Q07011     ~~~~~~~~~~~~~MGNSCYN......IVATLLLVLNF.............
+Q8C4K3     ~~~~~~~~~~~~~MGAWAML......YGVSMLCVLDL.............
+Q4S672     ~~~~~~MRLQQLVVG..FLS..SVAEV...PLKKSPKGAGGRAALCDPI.
+O35305     ~MAPRARRRRQLPAP..LLA.LCVLLV...PLQVT....LQVTPPCTQE.
+Q3UK82     MRLPRASSPCSLAWGPLLLG.LSGLLV.ASQPQLVPPYRIENQTCWDQDK
+Q805B0     ~~~~~~~~~~~~~MGPRWVL.LAALLRAAGGRNYSLPYTPQSAQCRNPST
+Q60846     ~~~~~~~~~~~~~MSA.LLT.AAGL.LFLGMLQAFPTDRPLKTTCAGDLS
+Q1ECV9     ~~MPQAQILSRFPLQRILILPLCVL.........FAVMAEERRDCREQE.
+
+           51                                             100
+Q07011     .ERTRSL..QDPCSNCPAGTF....CDN..NRNQICSPCPPNSFSSAG.G
+Q8C4K3     .GQPSVV..EEPG.........................CGPGKVQNGS.G
+Q4S672     .TQYKQD..GGCCKLCPPGTSMTSLG.N..CLEPQCQKCGDGEYQDTYSK
+O35305     .RHYEHL..GRCCSRCEPGKYLSSKCTP..TSDSVCLPCGPDEYLDTWNE
+Q3UK82     EYYEPMH..DVCCSRCPPGEFVFAVCSR..SQDTVCKTCPHNSYNEHWNH
+Q805B0     EFYEERL..KKCCSKCPPGQRKAESCSH..SVDTKCIPCLPDTYTAVWNR
+Q60846     HYPGEAA..RNCCYQCPSGLSPTQPCPR..GPAHCRKQCAPDYYVN...E
+Q1ECV9     ..YKDKFGSCIPCRQCDAGQELSKECGFGYGEDAQCVPCRASRFKEDR.S
+
+           101                                            150
+Q07011     QRTCDICRQCKG.VFRTRK.ECSSTSNAEC.DCTPGFHCLGAG...CSMC
+Q8C4K3     NN.....TRCCS.LYAPGKEDCP...KERCICVTPEYHCGDPQ...CKIC
+Q4S672     EPKCHLQPYCDPNKNFQIP.KYNLQERSVC.SCREGFHCSSSH...CTSC
+O35305     EDKCLLHKVCDAGKALVAVDPGNHTAPRRC.ACTAGYHWN.SD...CECC
+Q3UK82     LSTCQLCRPCDIVLGFEEVAPCTSDRKAEC.RCQPGMSCVYLD.NECVHC
+Q805B0     SPQCFACSPP.CRKGFVENQTCTLSWDRIC.SCPPNEYCISKMYQNCHIC
+Q60846     DGKCTACVTC..LPGLVEKAPCSGNSPRIC.ECQPGMHCCTPAVNSCARC
+Q1ECV9     LQKCKPCLDCSL.LNRFQKGNCSTTNNAVCGDCLPGFYRKTKL.......
+
+           151                                            200
+Q07011     EQ....DCKQG........QELTKKGCKDCCFGTFNDQ..KRGICRPWTN
+Q8C4K3     KH...YPCQPGQRV.ESQGDIVFGFRCVACAMGTFSAG..RDGHCRLWTN
+Q4S672     VPHT..ACNPGYRV.KLRGNHSKDTECERCSEGTFSQNSSQTEACQQWTE
+O35305     RRNT..ECAPGFGA.QHPLQLNKDTVCTPCLLGFFSDVFSSTDKCKPWTN
+Q3UK82     EEERLVLCQPGTEAEVTDEIMDTDVNCVPCKPGHFQNTSSPRARCQPHTR
+Q805B0     KVHK..KCGRGYRV.SRRGTDSTDTECKPCPPGTFSDEESYDTSCIPHTV
+Q60846     KLHC.....SGEEVVKSPGTAKKDTICELPSSGSGPNCSNPGDRKTLTSH
+Q1ECV9     ...................RGFQDMECIPCGDPPPP....YETHCMGRVN
+
+           201                                            250
+Q07011     CSLD..GKSVLVNGTK........ERDVVCGPS.................
+Q8C4K3     CSQF..GFLTMFPGNK........THNAVCIPE.................
+Q4S672     CPWG..WEV.VQAGTD........TSDQIC....................
+O35305     CTLL..GKLEAHQGTT........ESDVVC....................
+Q3UK82     CEIQ..GLVEAAPGTS........YSDTIC....................
+Q805B0     CKSV..AVA....GNN........VNDTVC....................
+Q60846     ATPQAMPTLESPANDSARSLLPMRVTNLVQEDATELVKVPESSSSKAREP
+Q1ECV9     LVPL..............................................
+
+           251                                            300
+Q07011     .PADLSPGAS...........SVTPPAP....AREPGHSPQIISFFLA..
+Q8C4K3     .PLP............................TEQYGHLTVI...FLV..
+Q4S672     .......GAPRT.......HAVV............ISVVVIFIVF.....
+O35305     .......SSSMTLRRPPKEAQAYLPS.........LIVLLLFISV.....
+Q3UK82     .......KNPPE....................PGAMLLLAILLSL.....
+Q805B0     .......HDSVATALPHTA.VNFLPSQSSTTNSGEIITQPVILNFVPD..
+Q60846     SPDPGNAEKNMTLELPSP...GTLPDISTSENSKEPASTASTLSLVVD..
+Q1ECV9     ..........................PSTVSSPRDMALAAVICSALATVL
+
+           301                                            350
+Q07011     ..............................LTST......A.LL......
+Q8C4K3     ..............................MA........A.CI......
+Q4S672     ..................................................
+O35305     ..................................................
+Q3UK82     ....................................V.....LF......
+Q805B0     ..................MSY...IIG...SVTGPFL.....LV......
+Q60846     ........AWTSSRMQPTSPL...STGTPFLDPGPVLFWVAMVV......
+Q1ECV9     LALFILCVIYCKRQLLEKKPVSMRAHEGPFLGSELSC..LDRRVLELSQR
+
+           351                                            400
+Q07011     ...............FLLFFLTLRFSVVKRGRKKLLYIF...........
+Q8C4K3     ...............FFLTTVQLGLHIWQLRRQHMCPRE...........
+Q4S672     ...............LVVVGLIFRRPCWSEGKVK..........RCIELC
+O35305     ...............VVVAAIIFGVYYRKGGKALTANLWNWVNDACSSLS
+Q3UK82     ...............LLFTTV..LACAWMRHPS...........LCRKLG
+Q805B0     ...............LIIAVL..GYCLFSKKKA.................
+Q60846     ...............LLVGSGSFLLCYWKACRRRFQQKFHLD........
+Q1ECV9     PCCHCTHGSEQTCGGVQLVSSVCCEDVWSQNRRRDAPAFHSHCRIS....
+
+           401                                            450
+Q07011     .....KQPFMRPVQTTQEEDGCSCRFP.......................
+Q8C4K3     .....TQPFAE..VQLSAEDACSFQFP.......................
+Q4S672     MEEKEDPPK.........ENKP......LVTHPTAAAADEPTLPERLISR
+O35305     GNKESS............GDRC......AGSHSATSSQQEVCEGILLMTR
+Q3UK82     TLLKRHPEGEESPPC.PAPRA.DPHFP...........D..........L
+Q805B0     .LAYSQPTGAVDSPFSPTEKQCDKKVRNAGSQNSSSSEQ..........E
+Q60846     YLVQTFQPKMEQTDSCPTEKLTQPQRSGSVTD........PSTGHKL...
+Q1ECV9     .........................DNGRLT...................
+
+           451                                            500
+Q07011     ......EEEEGGCEL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ......EEERGEQTE............EKCHLGGRWAMRPGL..PLCPKP
+Q4S672     EEPRTPEE..........................................
+O35305     EEKMVPEDGAGVCGP.............VCAAGGPWAEVRDS........
+Q3UK82     AEPLLPMSGDLSA................SPAGPPTAPSL..........
+Q805B0     EQHLLETPGSSGSSL.............DNAAGSERLSVI..........
+Q60846     .SPVSPPPAVETCASVGATYLENLPLLDDSPAGNPFSPREPPEPRVSTEH
+Q1ECV9     ......NESVGSQTDM............ACAPDE................
+
+           501                                            550
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     DATRLAQLYPW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     ................VDDDLSQEISITT....EI.HLTDNGKFVMQDKG
+O35305     ......RTFTLVSEVETQGDLSRKIPTEDEYTDRP.SQPSTGSLLLIQQG
+Q3UK82     .........................................EEVVLQQQS
+Q805B0     .........................................NNKDSDKKE
+Q60846     TNNRIEKIYIMKADTVIVGSVKTEVPEGRA......PAGSTESELEAELE
+Q1ECV9     .......VWPLVQSRRTTDSLQTNQRCSSCEEDEEEVQISDQRTAEEPED
+
+           551                                            600
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     MKEVKSEV~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O35305     SKSIPPFQEPLEVGENDSLSQCFTGTESTVDSEGCDFTEPPSR...TDSM
+Q3UK82     ....PLVQAR..................ELEAEPG.EHGQVAHGA..NGI
+Q805B0     ....S.FQQH..................YLATEGCKLHCGDRHSSASSEL
+Q60846     VDHAPHYPEQ...ETEPPLGSCTEV.M.FSVEEGGKEDHGPTTVSEK~~~
+Q1ECV9     ASHKPLIQQT...................TDTEG~~~~~~~~~~~~~~~~
+
+           601                                            650
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O35305     PVSPEKHLTKEIEGDSCLPWVVSSNSTDGYTGSGNTPGEDHEPFPGSLKC
+Q3UK82     HVTGGS.V.....TVTGNIYIYNGPVLGGTRGPGDPPAPPEPPYPTP.EE
+Q805B0     SGSGGTQV.....NVTC.IVKVCNPDCGSQF.P.EQTGPTSTDYGNA.QC
+Q60846     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q1ECV9     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+           651                                            700
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O35305     GPL.PQCAYSMGFPSEAAASMAEAG.VRPQDRADERGASGSGSSPSDQPP
+Q3UK82     GAPGP....S.....ELSTPYQEDGKAWHLAETETLGCQDL~~~~~~~~~
+Q805B0     SPTGGEVLLS.....KEEKPLKKETEIQILVEAKDNLLQDLLL.......
+Q60846     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q1ECV9     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+           701                                            750
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O35305     ASGNVTGNSNSTFISSGQVMNFKGDIIVVYVSQTSQEGPGSAEPESEPVG
+Q3UK82     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q805B0     ........DAKKFPLSVQDMGMKTV~~~~~~~~~~~~~~~~~~~~~~~~~
+Q60846     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q1ECV9     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+           751                                            800
+Q07011     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q4S672     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O35305     RPVQEETLAHRDSFAGTAPRFPDVCATGAGLQEQGAPRQKDGTSRPVQEQ
+Q3UK82     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q805B0     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q60846     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Q1ECV9     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+           801           817
+Q07011     ~~~~~~~~~~~~~~~~~
+Q8C4K3     ~~~~~~~~~~~~~~~~~
+Q4S672     ~~~~~~~~~~~~~~~~~
+O35305     GGAQTSLHTQGSGQCAE
+Q3UK82     ~~~~~~~~~~~~~~~~~
+Q805B0     ~~~~~~~~~~~~~~~~~
+Q60846     ~~~~~~~~~~~~~~~~~
+Q1ECV9     ~~~~~~~~~~~~~~~~~
+

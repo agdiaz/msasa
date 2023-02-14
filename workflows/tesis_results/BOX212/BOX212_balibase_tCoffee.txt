@@ -1,0 +1,10 @@
+Using XML format reference alignment
+
+Comparing test alignment in workflows/tesis_results/BOX212/BOX212_alignment_tCoffee.msf
+with reference alignment in dataset_testing/BOX212.xml
+Warning: no core blocks in XML reference alignment, using all columns
+
+	SP score= 0.101
+
+	TC score= 0.020
+auto workflows/tesis_results/BOX212/BOX212_alignment_tCoffee.msf 0.101 0.020
