@@ -1,0 +1,10 @@
+Input Alignment:                   	Overlap Score:
+OX212_ref_dashes.fasta          	1.00
+OX212_muscle_sorted.fasta       	0.34
+OX212_clustalo.fasta            	0.33
+OX212_tcoffee.fasta             	0.32
+OX212_mafft.fasta               	0.32
+OX212_kalign.fasta              	0.29
+OX212_msasa_singlematching.fasta	0.03
+OX212_msasa_singlems.fasta      	0.01
+OX212_msasa_singleblosum.fasta  	0.00
