@@ -1,0 +1,44 @@
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_clustal.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_clustal.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_kalign.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_kalign.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_msasa_singlematching.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_msasa_singlematching.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_mafft.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_mafft.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_msasa_blosum.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_msasa_blosum.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_msasa_singlematching.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_msasa_singlematching.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_msasa_singlems.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_msasa_singlems.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_muscle.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_muscle.txt
+
+./bali_score \
+    /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0142.xml \
+    /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_alignment_tCoffee.fasta \
+    > /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0142/BBA0142_baliscore_tCoffee.txt

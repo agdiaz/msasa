@@ -1,0 +1,5 @@
+
+Comparing test alignment in /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0011/BBA0011_alignment_clustal.fasta
+with reference alignment in /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0011.xml
+
+	CS score= 0.805

@@ -1,0 +1,5 @@
+
+Comparing test alignment in /Users/adrian/workspace/personal/msasa/workflows/tesis_results/BBA0030/BBA0030_alignment_kalign.fasta
+with reference alignment in /Users/adrian/workspace/personal/msasa/dataset_testing/BBA0030.xml
+
+	CS score= 0.762
