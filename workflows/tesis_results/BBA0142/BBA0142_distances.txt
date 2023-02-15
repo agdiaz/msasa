@@ -1,0 +1,7 @@
+No	RefTree	Tree	MatchingSplit	MatchingSplit_toYuleAvg	MatchingSplit_toUnifAvg	RFWeighted(0.5)	RFWeighted(0.5)_toYuleAvg	RFWeighted(0.5)_toUnifAvg
+1	1	1	18.0000	0.2888	0.2525	1.4303	N/A	N/A
+---------
+Summary:
+Name	Avg	Std	Min	Max	Count
+MatchingSplit	18.0	0.0	18.0	18.0	1
+RFWeighted(0.5)	1.43033	0.0	1.43033	1.43033	1
