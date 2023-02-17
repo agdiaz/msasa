@@ -1,0 +1,11 @@
+Input Alignment:                             	Overlap Score:
+OX132.fasta                               	1.00
+OX132_alignment_muscle.fasta              	0.85
+OX132_alignment_mafft.fasta               	0.84
+OX132_alignment_tCoffee.fasta             	0.84
+OX132_alignment_tCoffee.fasta             	0.84
+OX132_alignment_clustal.fasta             	0.81
+OX132_alignment_kalign.fasta              	0.80
+OX132_alignment_msasa_singlematching.fasta	0.09
+OX132_alignment_msasa_blosum.fasta        	0.07
+OX132_alignment_msasa_singlems.fasta      	0.05

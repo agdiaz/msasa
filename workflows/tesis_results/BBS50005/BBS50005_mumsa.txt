@@ -1,0 +1,11 @@
+Input Alignment:                               	Overlap Score:
+BS50005.fasta                               	1.00
+BS50005_alignment_muscle.fasta              	0.94
+BS50005_alignment_tCoffee.fasta             	0.94
+BS50005_alignment_tCoffee.fasta             	0.94
+BS50005_alignment_mafft.fasta               	0.93
+BS50005_alignment_clustal.fasta             	0.91
+BS50005_alignment_kalign.fasta              	0.91
+BS50005_alignment_msasa_blosum.fasta        	0.05
+BS50005_alignment_msasa_singlematching.fasta	0.04
+BS50005_alignment_msasa_singlems.fasta      	0.01
