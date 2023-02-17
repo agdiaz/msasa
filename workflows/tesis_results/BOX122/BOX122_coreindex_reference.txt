@@ -1,6 +1,6 @@
 T-COFFEE, Version_13.41.0.28bdc39 (2019-11-30 10:21:53 - Revision 5d5a1c1 - Build 465)
 Cedric Notredame 
-CPU TIME:262 sec.
+CPU TIME:94 sec.
 SCORE=72
 *
  BAD AVG GOOD
